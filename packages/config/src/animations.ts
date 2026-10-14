@@ -1,0 +1,47 @@
+import { createAnimations } from '@tamagui/animations-react-native'
+
+export const animations = createAnimations({
+  '100ms': {
+    type: 'timing',
+    duration: 100,
+  },
+  bouncy: {
+    damping: 9,
+    mass: 0.9,
+    stiffness: 150,
+  },
+  lazy: {
+    damping: 18,
+    stiffness: 50,
+  },
+  medium: {
+    damping: 15,
+    stiffness: 120,
+    mass: 1,
+  },
+  slow: {
+    damping: 15,
+    stiffness: 40,
+  },
+  quick: {
+    damping: 22,
+    mass: 0.8,
+    stiffness: 380,
+  },
+  tooltip: {
+    damping: 10,
+    mass: 0.9,
+    stiffness: 100,
+  },
+  // Micro-interactions - instant feedback for buttons/cards
+  micro: {
+    type: 'timing',
+    duration: 100,
+  },
+  // Press feedback - spring animation for tactile feel
+  press: {
+    damping: 20,
+    mass: 0.5,
+    stiffness: 300,
+  },
+})

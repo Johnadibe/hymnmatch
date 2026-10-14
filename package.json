@@ -1,0 +1,54 @@
+{
+  "name": "hymn-match",
+  "private": true,
+  "workspaces": [
+    "./apps/*",
+    "./packages/*"
+  ],
+  "scripts": {
+    "native": "cd apps/expo && yarn start",
+    "native:prebuild": "cd apps/expo && yarn prebuild",
+    "ios": "cd apps/expo && yarn ios",
+    "android": "cd apps/expo && yarn android",
+    "build": "yarn workspaces foreach --all run build",
+    "type-check": "tsc --noEmit",
+    "test": "cd apps/expo && yarn test",
+    "lint": "npx biome check .",
+    "lint:fix": "npx biome check --write --unsafe .",
+    "prepare": "husky"
+  },
+  "resolutions": {
+    "@react-native-async-storage/async-storage": "2.2.0",
+    "expo-constants": "18.0.13",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-refresh": "^0.14.0",
+    "react-native-svg": "15.12.1",
+    "react-native-web": "0.21.2"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.24.6",
+    "@tamagui/cli": "^1.143.1",
+    "@tamagui/react-native-svg": "^1.143.1",
+    "@tamagui/react-native-web-lite": "^1.143.1",
+    "@tamagui/toast": "^1.143.1",
+    "burnt": "^0.13.0",
+    "check-dependency-version-consistency": "^4.1.0",
+    "expo": "~54.0.32",
+    "husky": "^9.1.6",
+    "react": "19.1.0",
+    "react-native": "0.81.5",
+    "turbo": "^1.13.4",
+    "typescript": "~5.8.3",
+    "vitest": "^2.1.1"
+  },
+  "packageManager": "yarn@4.5.0",
+  "engines": {
+    "node": "24"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.3",
+    "dotenv": "^17.2.3"
+  },
+  "version": "1.0.0"
+}

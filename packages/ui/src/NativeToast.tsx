@@ -1,0 +1,187 @@
+import { Toast, useToastState } from '@tamagui/toast'
+import { YStack, XStack } from 'tamagui'
+import {
+  CheckCircle2,
+  Pencil,
+  Trash2,
+  Send,
+  XCircle,
+  Globe,
+  UserCheck,
+  UserX,
+  FileCheck,
+  FileX,
+  DollarSign,
+  X,
+  Award,
+  AlertTriangle,
+  User,
+  WifiOff,
+  AlertCircle,
+  FormInput,
+  Upload,
+  Loader,
+  Lock,
+  Timer,
+  RefreshCw,
+  Briefcase,
+  MessageCircle,
+  Info,
+  Sparkles,
+  Paperclip,
+  BarChart,
+  Target,
+  Users,
+  Play,
+  Square,
+  MapPin,
+  FileText,
+  Clock,
+  Trophy,
+  Receipt,
+} from '@tamagui/lucide-icons'
+
+const iconComponents = {
+  CheckCircle2,
+  Pencil,
+  Trash2,
+  Send,
+  XCircle,
+  Globe,
+  UserCheck,
+  UserX,
+  FileCheck,
+  FileX,
+  DollarSign,
+  X,
+  Award,
+  AlertTriangle,
+  User,
+  WifiOff,
+  AlertCircle,
+  FormInput,
+  Upload,
+  Loader,
+  Lock,
+  Timer,
+  RefreshCw,
+  Briefcase,
+  MessageCircle,
+  Info,
+  Sparkles,
+  Paperclip,
+  BarChart,
+  Target,
+  Users,
+  Play,
+  Square,
+  MapPin,
+  FileText,
+  Clock,
+  Trophy,
+  Receipt,
+} as const
+
+type ToastIcon = keyof typeof iconComponents
+
+export const NativeToast = () => {
+  const currentToast = useToastState()
+
+  if (!currentToast || currentToast.isHandledNatively) {
+    return null
+  }
+
+  // Get variant and icon from customData
+  const variant =
+    (currentToast.customData?.variant as 'success' | 'error' | 'warning' | 'info') || 'info'
+  const iconName = currentToast.customData?.icon as ToastIcon | undefined
+
+  // Determine toast styling based on variant
+  const isSuccess = variant === 'success'
+  const isError = variant === 'error'
+  const isWarning = variant === 'warning'
+
+  // Get background color based on type
+  const getBackgroundColor = () => {
+    if (isSuccess) return '$successBackground'
+    if (isError) return '$errorBackground'
+    if (isWarning) return '$warningBackground'
+    return '$backgroundStrong'
+  }
+
+  const getBorderColor = () => {
+    if (isSuccess) return '$success'
+    if (isError) return '$error'
+    if (isWarning) return '$warning'
+    return '$borderColor'
+  }
+
+  const getIconColor = () => {
+    if (isSuccess) return '$success'
+    if (isError) return '$error'
+    if (isWarning) return '$warning'
+    return '$primary'
+  }
+
+  // Get icon component
+  const IconComponent = iconName ? iconComponents[iconName] : null
+
+  return (
+    <Toast
+      key={currentToast.id}
+      duration={currentToast.duration}
+      viewportName={currentToast.viewportName}
+      enterStyle={{ opacity: 0, y: -150 }}
+      exitStyle={{ opacity: 0, y: -150 }}
+      y={0}
+      opacity={1}
+      animation="quick"
+      bg={getBackgroundColor()}
+      borderWidth={1}
+      borderColor={getBorderColor()}
+      borderRadius="$3"
+      maxWidth={380}
+      minWidth={300}
+      width="90%"
+      alignSelf="center"
+    >
+      <YStack
+        py="$3"
+        px="$6"
+        gap="$2"
+        alignItems="center"
+      >
+        {IconComponent && (
+          <IconComponent
+            size={28}
+            color={getIconColor()}
+          />
+        )}
+        <YStack
+          alignItems="center"
+          gap="$1"
+        >
+          <Toast.Title
+            lineHeight="$1"
+            fontWeight="600"
+            fontSize="$4"
+            color="black"
+            textAlign="center"
+          >
+            {currentToast.title}
+          </Toast.Title>
+          {!!currentToast.message && (
+            <Toast.Description
+              fontSize="$3"
+              opacity={0.9}
+              color="black"
+              textAlign="center"
+            >
+              {currentToast.message}
+            </Toast.Description>
+          )}
+        </YStack>
+      </YStack>
+    </Toast>
+  )
+}
