@@ -16,19 +16,14 @@
       "autoIncrement": true,
       "android": {
         "buildType": "app-bundle"
-      },
-      "prebuildCommand": "node scripts/eas-android-prebuild.mjs"
+      }
     },
     "apk": {
       "developmentClient": false,
       "distribution": "internal",
-      "env": {
-        "NODE_ENV": "production"
-      },
       "android": {
         "buildType": "apk"
-      },
-      "prebuildCommand": "node scripts/eas-android-prebuild.mjs"
+      }
     }
   },
   "cli": {

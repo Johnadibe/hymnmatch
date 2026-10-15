@@ -84,6 +84,23 @@ function applyFullScreenSplashStyle(styleConfig) {
   return styleConfig
 }
 
+const splashStyleBlock = `<style name="Theme.App.SplashScreen" parent="AppTheme">
+    <item name="android:windowBackground">@drawable/splashscreen_full_bleed_background</item>
+  </style>`
+
+/** styles.xml on disk can differ from withAndroidStyles modResults; patch after other mods. */
+function patchSplashStylesOnDisk(platformRoot) {
+  const stylesPath = path.join(platformRoot, 'app', 'src', 'main', 'res', 'values', 'styles.xml')
+  if (!fs.existsSync(stylesPath)) {
+    return
+  }
+  const styles = fs.readFileSync(stylesPath, 'utf8')
+  const next = styles.replace(/<style name="Theme\.App\.SplashScreen"[\s\S]*?<\/style>/, splashStyleBlock)
+  if (next !== styles) {
+    fs.writeFileSync(stylesPath, next)
+  }
+}
+
 function ensureNotificationIconDrawable(platformRoot) {
   const drawableDir = path.join(platformRoot, 'app', 'src', 'main', 'res', 'drawable')
   fs.mkdirSync(drawableDir, { recursive: true })
@@ -130,6 +147,25 @@ function withDisableGoogleServices(config) {
       /\s*apply plugin:\s*['"]com\.google\.gms\.google-services['"]\s*\n?/g,
       '\n'
     )
+    if (!contents.includes('patchHymnMatchSplashStyle')) {
+      contents += `
+// HymnMatch: full-bleed splash after Expo prebuild (EAS + local Gradle)
+tasks.register("patchHymnMatchSplashStyle") {
+    doLast {
+        def stylesFile = file("src/main/res/values/styles.xml")
+        if (!stylesFile.exists()) return
+        def splashBlock = '<style name="Theme.App.SplashScreen" parent="AppTheme">\\n    <item name="android:windowBackground">@drawable/splashscreen_full_bleed_background</item>\\n  </style>'
+        def text = stylesFile.getText("UTF-8")
+        def updated = text.replaceAll(
+            '(?s)<style name="Theme\\\\.App\\\\.SplashScreen"[^>]*>.*?</style>',
+            splashBlock
+        )
+        if (updated != text) stylesFile.write(updated, "UTF-8")
+    }
+}
+tasks.named("preBuild").configure { dependsOn("patchHymnMatchSplashStyle") }
+`
+    }
     gradleConfig.modResults.contents = contents
     return gradleConfig
   })
@@ -141,6 +177,7 @@ function withDisableGoogleServices(config) {
       const projectRoot = modConfig.modRequest.projectRoot
       installFullScreenSplashAssets(projectRoot, platformRoot)
       ensureNotificationIconDrawable(platformRoot)
+      patchSplashStylesOnDisk(platformRoot)
 
       const jsonPath = path.join(platformRoot, 'app', 'google-services.json')
       if (fs.existsSync(jsonPath)) {
