@@ -7,7 +7,7 @@ import { BookOpen } from '@tamagui/lucide-icons'
 import { BrandMark } from '../components/BrandMark'
 import { isOnboardingComplete } from '../storage/onboarding'
 
-const MIN_SPLASH_MS = 1100
+const MIN_SPLASH_MS = 900
 
 export function BootstrapScreen() {
   const router = useRouter()
@@ -27,12 +27,13 @@ export function BootstrapScreen() {
       const delay = new Promise((r) => setTimeout(r, MIN_SPLASH_MS))
       const [complete] = await Promise.all([isOnboardingComplete(), delay])
 
+      await ExpoSplashScreen.hideAsync()
+
       if (complete) {
         router.replace('/(tabs)/today')
       } else {
         router.replace('/onboarding')
       }
-      await ExpoSplashScreen.hideAsync()
     }
 
     void bootstrap()

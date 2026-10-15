@@ -16,7 +16,8 @@
       "autoIncrement": true,
       "android": {
         "buildType": "app-bundle"
-      }
+      },
+      "prebuildCommand": "npx expo prebuild --platform android && node scripts/patch-android-splash.mjs"
     },
     "apk": {
       "developmentClient": false,
@@ -26,7 +27,8 @@
       },
       "android": {
         "buildType": "apk"
-      }
+      },
+      "prebuildCommand": "npx expo prebuild --platform android && node scripts/patch-android-splash.mjs"
     }
   },
   "cli": {

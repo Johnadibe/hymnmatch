@@ -9,8 +9,8 @@
     "userInterfaceStyle": "automatic",
     "jsEngine": "hermes",
     "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
+      "image": "./assets/splash-full.png",
+      "resizeMode": "cover",
       "backgroundColor": "#0E1A4D"
     },
     "updates": {
@@ -30,7 +30,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#0E1A4D"
+        "backgroundColor": "#FFFFFF"
       },
       "package": "com.hymnmatch.app",
       "softwareKeyboardLayoutMode": "pan"
@@ -44,10 +44,22 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/splash.png",
           "backgroundColor": "#0E1A4D",
-          "imageWidth": 240,
-          "resizeMode": "contain"
+          "image": "./assets/splash-full.png",
+          "imageWidth": 400,
+          "resizeMode": "cover",
+          "android": {
+            "backgroundColor": "#0E1A4D",
+            "image": "./assets/splash-full.png",
+            "resizeMode": "cover",
+            "imageWidth": 400
+          },
+          "ios": {
+            "backgroundColor": "#0E1A4D",
+            "image": "./assets/splash-full.png",
+            "imageWidth": 320,
+            "resizeMode": "contain"
+          }
         }
       ],
       "./plugins/withDisableGoogleServices"

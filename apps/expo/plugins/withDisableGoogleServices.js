@@ -4,6 +4,7 @@ const {
   AndroidConfig,
   withAndroidColors,
   withAndroidManifest,
+  withAndroidStyles,
   withAppBuildGradle,
   withDangerousMod,
 } = require('expo/config-plugins')
@@ -23,6 +24,64 @@ function stripFirebaseManifestMeta(manifestConfig) {
     })
   }
   return manifestConfig
+}
+
+const splashBackgroundXml = `<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+  <item>
+    <bitmap android:gravity="fill" android:src="@drawable/splashscreen_full_bleed"/>
+  </item>
+</layer-list>
+`
+
+function installFullScreenSplashAssets(projectRoot, platformRoot) {
+  const source = path.join(projectRoot, 'assets', 'splash-full.png')
+  if (!fs.existsSync(source)) {
+    return
+  }
+
+  const resRoot = path.join(platformRoot, 'app', 'src', 'main', 'res')
+  const drawableDir = path.join(resRoot, 'drawable')
+  fs.mkdirSync(drawableDir, { recursive: true })
+  fs.writeFileSync(path.join(drawableDir, 'splashscreen_full_bleed_background.xml'), splashBackgroundXml)
+
+  for (const folder of [
+    'drawable',
+    'drawable-mdpi',
+    'drawable-hdpi',
+    'drawable-xhdpi',
+    'drawable-xxhdpi',
+    'drawable-xxxhdpi',
+  ]) {
+    const dir = path.join(resRoot, folder)
+    fs.mkdirSync(dir, { recursive: true })
+    fs.copyFileSync(source, path.join(dir, 'splashscreen_full_bleed.png'))
+  }
+
+}
+
+function applyFullScreenSplashStyle(styleConfig) {
+  const styles = styleConfig.modResults.resources.style
+  if (!Array.isArray(styles)) {
+    return styleConfig
+  }
+
+  styleConfig.modResults.resources.style = [
+    ...styles.filter((entry) => entry.$?.name !== 'Theme.App.SplashScreen'),
+    {
+      $: {
+        name: 'Theme.App.SplashScreen',
+        parent: 'AppTheme',
+      },
+      item: [
+        {
+          $: { name: 'android:windowBackground' },
+          _: '@drawable/splashscreen_full_bleed_background',
+        },
+      ],
+    },
+  ]
+  return styleConfig
 }
 
 function ensureNotificationIconDrawable(platformRoot) {
@@ -63,6 +122,8 @@ function withDisableGoogleServices(config) {
     return colorsConfig
   })
 
+  config = withAndroidStyles(config, applyFullScreenSplashStyle)
+
   config = withAppBuildGradle(config, (gradleConfig) => {
     let contents = gradleConfig.modResults.contents
     contents = contents.replace(
@@ -77,6 +138,8 @@ function withDisableGoogleServices(config) {
     'android',
     async (modConfig) => {
       const platformRoot = modConfig.modRequest.platformProjectRoot
+      const projectRoot = modConfig.modRequest.projectRoot
+      installFullScreenSplashAssets(projectRoot, platformRoot)
       ensureNotificationIconDrawable(platformRoot)
 
       const jsonPath = path.join(platformRoot, 'app', 'google-services.json')
