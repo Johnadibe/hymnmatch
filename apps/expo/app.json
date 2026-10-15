@@ -49,7 +49,7 @@
           "imageWidth": 240,
           "resizeMode": "contain"
         }
-      ],
+      ]
     ],
     "experiments": {
       "typedRoutes": true
@@ -57,7 +57,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "cd87a0d4-1463-4f79-ab66-7f811072645f"
+        "projectId": "4cfb4de0-435a-45f1-b885-a78dd190c891"
       }
     },
     "owner": "johnadibe500s-team"
