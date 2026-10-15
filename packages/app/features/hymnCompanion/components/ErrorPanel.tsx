@@ -1,4 +1,5 @@
 import { Button, PressPresets, Text, YStack } from '@my/ui'
+import { TYPE } from '../constants'
 import { AlertCircle } from '@tamagui/lucide-icons'
 
 type ErrorPanelProps = {
@@ -37,7 +38,7 @@ export function ErrorPanel({
         <Text
           color="$red11"
           fontWeight="700"
-          fontSize={16}
+          {...TYPE.body}
           flex={1}
         >
           {title}
@@ -45,16 +46,14 @@ export function ErrorPanel({
       </YStack>
       <Text
         color="$red11"
-        fontSize={14}
-        lineHeight={21}
+        {...TYPE.bodySmall}
       >
         {message}
       </Text>
       {hint ? (
         <Text
           color="$red10"
-          fontSize={13}
-          lineHeight={19}
+          {...TYPE.caption}
         >
           {hint}
         </Text>

@@ -1,4 +1,5 @@
 import { Spinner, Text, YStack } from '@my/ui'
+import { TYPE } from '../constants'
 
 type LoadingBlockProps = {
   label?: string
@@ -20,7 +21,7 @@ export function LoadingBlock({ label, sublabel, minimal }: LoadingBlockProps) {
       {!minimal && label ? (
         <Text
           fontWeight="600"
-          fontSize={15}
+          {...TYPE.body}
           color="$color11"
           textAlign="center"
         >
@@ -29,10 +30,9 @@ export function LoadingBlock({ label, sublabel, minimal }: LoadingBlockProps) {
       ) : null}
       {!minimal && sublabel ? (
         <Text
-          fontSize={13}
+          {...TYPE.bodySmall}
           color="$color10"
           textAlign="center"
-          lineHeight={19}
         >
           {sublabel}
         </Text>

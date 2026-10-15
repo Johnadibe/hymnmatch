@@ -82,8 +82,8 @@ export function GradientHeader({
           </Text>
           {subtitle ? (
             <Text
-              fontSize={15}
-              lineHeight={22}
+              fontSize={16}
+              lineHeight={24}
               color="rgba(255,255,255,0.92)"
               numberOfLines={isStack ? 3 : undefined}
             >

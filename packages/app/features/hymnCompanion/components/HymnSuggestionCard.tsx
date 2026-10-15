@@ -2,6 +2,7 @@ import { LinearGradient } from 'expo-linear-gradient'
 import { StyleSheet, View } from 'react-native'
 import { Button, PressPresets, Text, XStack, YStack } from '@my/ui'
 import { ChevronRight, Music2 } from '@tamagui/lucide-icons'
+import { TYPE } from '../constants'
 import type { HymnCatalogEntry } from '../types'
 import type { HymnRecommendation } from '../types'
 
@@ -80,7 +81,7 @@ export function HymnSuggestionCard({
       >
         <YStack gap="$1">
           <Text
-            fontSize={12}
+            {...TYPE.caption}
             color="$color10"
             fontWeight="600"
           >
@@ -95,26 +96,23 @@ export function HymnSuggestionCard({
             Abu {hymn.number}
           </Text>
           <Text
-            fontSize={16}
+            {...TYPE.body}
             fontWeight="600"
             color="$color11"
-            lineHeight={22}
           >
             {hymn.title}
           </Text>
           <Text
-            fontSize={13}
+            {...TYPE.bodySmall}
             color="$color10"
             fontStyle="italic"
-            lineHeight={18}
           >
             {hymn.titleEnglish}
           </Text>
         </YStack>
 
         <Text
-          fontSize={15}
-          lineHeight={23}
+          {...TYPE.body}
           color="$color11"
         >
           {recommendation.reason}
@@ -128,7 +126,7 @@ export function HymnSuggestionCard({
             {recommendation.matchedThemes.map((theme) => (
               <Text
                 key={theme}
-                fontSize={12}
+                {...TYPE.caption}
                 fontWeight="600"
                 color="$blue11"
                 backgroundColor="$blue2"

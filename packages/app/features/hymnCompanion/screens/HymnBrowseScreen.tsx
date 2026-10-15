@@ -7,6 +7,7 @@ import { AppScreen } from '../components/AppScreen'
 import { HymnLibrarySearchField } from '../components/HymnLibrarySearchField'
 import { SurfaceCard } from '../components/SurfaceCard'
 import { filterHymnCatalog } from '../data/hymnCatalog'
+import { TYPE } from '../constants'
 import type { HymnCatalogEntry } from '../types'
 
 type HymnRowProps = {
@@ -24,7 +25,7 @@ const HymnRow = memo(function HymnRow({ hymn, onPress }: HymnRowProps) {
       <SurfaceCard accent="blue">
         <YStack gap="$2">
           <Text
-            fontSize={12}
+            {...TYPE.caption}
             color="$color10"
           >
             Abu {hymn.number}
@@ -36,14 +37,14 @@ const HymnRow = memo(function HymnRow({ hymn, onPress }: HymnRowProps) {
             {hymn.title}
           </Text>
           <Text
-            fontSize={14}
+            {...TYPE.bodySmall}
             color="$color10"
             fontStyle="italic"
           >
             {hymn.titleEnglish}
           </Text>
           <Text
-            fontSize={13}
+            {...TYPE.bodySmall}
             color="$color11"
           >
             {hymn.themes.slice(0, 4).join(' · ')}
@@ -53,7 +54,7 @@ const HymnRow = memo(function HymnRow({ hymn, onPress }: HymnRowProps) {
             gap="$1"
           >
             <Text
-              fontSize={13}
+              {...TYPE.bodySmall}
               fontWeight="600"
               color="$blue10"
             >
@@ -99,7 +100,7 @@ export function HymnBrowseScreen() {
   const listHeader = useMemo(
     () => (
       <Text
-        fontSize={13}
+        {...TYPE.bodySmall}
         color="$color10"
         marginBottom="$2"
       >
@@ -125,10 +126,9 @@ export function HymnBrowseScreen() {
           No hymns found
         </Text>
         <Text
-          fontSize={14}
+          {...TYPE.bodySmall}
           color="$color10"
           textAlign="center"
-          lineHeight={20}
         >
           Try an Abu number (e.g. 8), an English line (e.g. immortal), or Igbo without tone marks (e.g.
           Chineke).

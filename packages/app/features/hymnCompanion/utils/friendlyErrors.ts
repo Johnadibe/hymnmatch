@@ -4,11 +4,28 @@ export function explainLoadPassageError(message: string): {
   hint: string
 } {
   const lower = message.toLowerCase()
-  if (lower.includes('network') || lower.includes('fetch') || lower.includes('connection')) {
+  if (
+    lower.includes('could not find') ||
+    lower.includes('enter a bible reference') ||
+    lower.includes('returned no verse')
+  ) {
     return {
-      title: 'No internet connection',
-      message: 'We could not load the Scripture passage right now.',
-      hint: 'Check Wi‑Fi or mobile data, then tap Try again.',
+      title: 'Check the reference',
+      message,
+      hint: 'Use book chapter:verse, e.g. Romans 12:1-2 or John 3:16.',
+    }
+  }
+  if (
+    lower.includes('network request failed') ||
+    lower.includes('failed to fetch') ||
+    lower.includes('unable to resolve host') ||
+    lower.includes('timed out') ||
+    lower.includes('could not reach the scripture service')
+  ) {
+    return {
+      title: 'Connection issue',
+      message: 'We could not reach the Scripture service from this device.',
+      hint: 'Check Wi‑Fi or mobile data, try opening https://bible-api.com in your phone browser, then tap Try again.',
     }
   }
   return {

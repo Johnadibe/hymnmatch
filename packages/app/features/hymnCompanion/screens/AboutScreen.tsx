@@ -3,6 +3,7 @@ import { SurfaceCard } from '../components/SurfaceCard'
 import { Text, YStack } from '@my/ui'
 import Constants from 'expo-constants'
 import { getLectionaryDateRange } from '../data/lectionary/fellowshipLectionary'
+import { TYPE } from '../constants'
 
 const appVersion = Constants.expoConfig?.version ?? '1.0.0'
 
@@ -23,7 +24,7 @@ export function AboutScreen() {
           All Christian Practical Praying Band, Int&apos;l
         </Text>
         <Text
-          fontSize={13}
+          {...TYPE.bodySmall}
           fontWeight="600"
           color="$color10"
           marginTop="$1"
@@ -31,10 +32,9 @@ export function AboutScreen() {
           ACPPB · Since 1957
         </Text>
         <Text
-          lineHeight={22}
+          {...TYPE.body}
           color="$color11"
           marginTop="$3"
-          fontSize={15}
         >
           ACPPB is a ministry committed to practical prayer, faithful exposition of Scripture,
           and worship that honours Christ. HymnMatch was prepared to serve preachers and worship
@@ -50,9 +50,8 @@ export function AboutScreen() {
           HymnMatch
         </Text>
         <Text
-          lineHeight={22}
+          {...TYPE.body}
           color="$color11"
-          fontSize={15}
         >
           HymnMatch helps you move from the day&apos;s Scripture to hymns that support the central
           message of your sermon. It is a preparation tool: your judgment, the hymnbook, and the
@@ -105,8 +104,7 @@ export function AboutScreen() {
 function Bullet({ text }: { text: string }) {
   return (
     <Text
-      fontSize={14}
-      lineHeight={21}
+      {...TYPE.bodySmall}
       color="$color11"
       marginBottom="$2"
       paddingLeft="$2"
@@ -155,14 +153,13 @@ function WorkflowStep({
       >
         <Text
           fontWeight="700"
-          fontSize={14}
+          {...TYPE.bodySmall}
         >
           {title}
         </Text>
         <Text
           color="$color11"
-          lineHeight={20}
-          fontSize={14}
+          {...TYPE.bodySmall}
         >
           {body}
         </Text>

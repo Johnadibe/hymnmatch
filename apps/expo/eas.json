@@ -19,7 +19,11 @@
       }
     },
     "apk": {
+      "developmentClient": false,
       "distribution": "internal",
+      "env": {
+        "NODE_ENV": "production"
+      },
       "android": {
         "buildType": "apk"
       }

@@ -6,6 +6,7 @@ import {
   slotLabel,
 } from '../data/lectionary/readingRules'
 import { listSelectableReferences } from '../data/lectionary/fellowshipLectionary'
+import { TYPE } from '../constants'
 
 export type ReadingPickerValue = {
   slot: ReadingSlot
@@ -59,9 +60,8 @@ export function ReadingSlotPicker({ date, day, value, onChange }: ReadingSlotPic
   return (
     <YStack gap="$3">
       <Text
-        fontSize={13}
+        {...TYPE.bodySmall}
         color="$color10"
-        lineHeight={19}
       >
         {bsgRequired
           ? 'This day uses the daily fellowship reading below.'
@@ -101,7 +101,7 @@ export function ReadingSlotPicker({ date, day, value, onChange }: ReadingSlotPic
         <YStack gap="$2">
           <Text
             fontWeight="600"
-            fontSize={14}
+            {...TYPE.bodySmall}
           >
             Which line?
           </Text>
@@ -117,7 +117,7 @@ export function ReadingSlotPicker({ date, day, value, onChange }: ReadingSlotPic
               backgroundColor={value.index === r.index ? '$blue2' : '$backgroundStrong'}
               onPress={() => onChange({ slot: value.slot, index: r.index })}
             >
-              <Text fontSize={14}>{r.display}</Text>
+              <Text {...TYPE.bodySmall}>{r.display}</Text>
             </Button>
           ))}
         </YStack>
@@ -132,7 +132,7 @@ export function ReadingSlotPicker({ date, day, value, onChange }: ReadingSlotPic
         borderColor="$blue6"
       >
         <Text
-          fontSize={12}
+          {...TYPE.caption}
           fontWeight="700"
           color="$blue11"
           textTransform="uppercase"
@@ -141,7 +141,7 @@ export function ReadingSlotPicker({ date, day, value, onChange }: ReadingSlotPic
           {slotLabel(value.slot)}
         </Text>
         <Text
-          fontSize={14}
+          {...TYPE.bodySmall}
           color="$color11"
           fontWeight="600"
         >
@@ -149,7 +149,7 @@ export function ReadingSlotPicker({ date, day, value, onChange }: ReadingSlotPic
         </Text>
         {choiceDay && value.slot === 'bsg' && (day.mp.length > 0 || day.ep.length > 0) ? (
           <Text
-            fontSize={12}
+            {...TYPE.caption}
             color="$color10"
             marginTop="$2"
           >

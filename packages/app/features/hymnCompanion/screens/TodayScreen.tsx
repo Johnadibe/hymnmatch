@@ -29,6 +29,7 @@ import {
 import type { FellowshipLectionaryDay } from '../data/lectionary/types'
 import { fetchPassageText } from '../services/fetchPassage'
 import { explainLoadPassageError } from '../utils/friendlyErrors'
+import { TYPE } from '../constants'
 import type { DailyReading } from '../types'
 
 const defaultPicker: ReadingPickerValue = { slot: 'bsg', index: 0 }
@@ -61,19 +62,20 @@ export function TodayScreen() {
       if (options?.customRef?.trim()) {
         setTextLoading(true)
         setError(null)
-        setScheduleDay(null)
         try {
-          const scripture = await fetchPassageText(options.customRef.trim(), {
-            preferNetwork: options.preferNetwork,
+          const normalizedRef = options.customRef.trim()
+          const scripture = await fetchPassageText(normalizedRef, {
+            preferNetwork: true,
           })
           if (seq !== loadSeq.current) return
+          setScheduleDay(null)
           const dateKey = formatDateKey(targetDate)
           setReading({
             date: dateKey,
             reference: scripture.reference,
             title: 'Custom passage',
             sourceLabel: 'Custom reference',
-            passages: [options.customRef.trim()],
+            passages: [scripture.reference],
             text: scripture.text,
             verses: scripture.verses,
             translationName: scripture.translationName,
@@ -114,7 +116,7 @@ export function TodayScreen() {
         date: formatDateKey(targetDate),
         reference: chosen.reference,
         title: `${day.marketDay} · ${day.dayLabel}`,
-        sourceLabel: 'ACPPB fellowship lectionary',
+        sourceLabel: 'ACPPB Daily Guilde Reading',
         passages: [chosen.reference],
         text: '',
         fellowship: {
@@ -236,6 +238,8 @@ export function TodayScreen() {
             void loadReading({
               forDate: selectedDate,
               pickerValue: picker,
+              ...(customReference.trim() ? { customRef: customReference } : {}),
+              preferNetwork: true,
             })
           }
         />
@@ -256,7 +260,7 @@ export function TodayScreen() {
         {reading ? (
           <>
             <Text
-              fontSize={12}
+              {...TYPE.caption}
               color="$color10"
             >
               {reading.date} · {reading.sourceLabel}
@@ -275,7 +279,7 @@ export function TodayScreen() {
               {reading.reference}
             </Text>
             <Text
-              fontSize={16}
+              {...TYPE.body}
               fontWeight="600"
               color="$color11"
             >
@@ -291,21 +295,31 @@ export function TodayScreen() {
             ) : (
               <Text
                 color="$color10"
-                fontSize={14}
+                {...TYPE.bodySmall}
               >
                 Passage text could not be loaded. Tap Refresh or check your connection.
               </Text>
             )}
           </>
         ) : !err ? (
-          <Text color="$color10">Select a date with a fellowship reading.</Text>
+          <Text
+            color="$color10"
+            {...TYPE.bodySmall}
+          >
+            Select a date with a fellowship reading.
+          </Text>
         ) : null}
       </SurfaceCard>
 
       <SurfaceCard accent="green">
-        <Text fontWeight="700">Central theme (optional)</Text>
         <Text
-          fontSize={13}
+          fontWeight="700"
+          {...TYPE.body}
+        >
+          Central theme (optional)
+        </Text>
+        <Text
+          {...TYPE.bodySmall}
           color="$color10"
         >
           Confirm or refine the sermon message before matching hymns.
@@ -319,9 +333,14 @@ export function TodayScreen() {
       </SurfaceCard>
 
       <SurfaceCard>
-        <Text fontWeight="700">Override with another passage</Text>
         <Text
-          fontSize={13}
+          fontWeight="700"
+          {...TYPE.body}
+        >
+          Override with another passage
+        </Text>
+        <Text
+          {...TYPE.bodySmall}
           color="$color10"
         >
           For preparation outside the printed schedule only.
@@ -339,7 +358,13 @@ export function TodayScreen() {
           />
           <Button
             {...PressPresets.secondary}
-            onPress={() => void loadReading({ customRef: customReference, forDate: selectedDate })}
+            onPress={() =>
+              void loadReading({
+                customRef: customReference,
+                forDate: selectedDate,
+                preferNetwork: true,
+              })
+            }
             disabled={!customReference.trim() || textLoading}
           >
             Load

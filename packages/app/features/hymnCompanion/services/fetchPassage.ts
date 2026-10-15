@@ -33,10 +33,12 @@ type BibleApiResponse = {
   verses: BibleApiVerse[]
   text: string
   translation_name: string
+  error?: string
 }
 
-function referenceToPath(reference: string): string {
-  return encodeURIComponent(reference.replace(/\s+/g, '+'))
+/** bible-api.com path segment: spaces as +, leave : and - unescaped. */
+export function bibleApiPathForReference(reference: string): string {
+  return reference.trim().replace(/\s+/g, '+')
 }
 
 function cacheKeyFor(reference: string): string {
@@ -53,36 +55,93 @@ function fromCacheRecord(record: CachedPassageRecord, delivery: PassageTextDeliv
   }
 }
 
-async function fetchFromNetwork(reference: string): Promise<PassageTextResult> {
-  const url = `https://bible-api.com/${referenceToPath(reference)}?translation=${PASSAGE_TRANSLATION_ID}`
-  const controller = new AbortController()
-  const timeout = setTimeout(() => controller.abort(), 20_000)
+function isTransientNetworkError(message: string): boolean {
+  const lower = message.toLowerCase()
+  return (
+    lower.includes('network request failed') ||
+    lower.includes('failed to fetch') ||
+    lower.includes('unable to resolve host') ||
+    lower.includes('abort') ||
+    lower.includes('timed out')
+  )
+}
+
+async function parsePassageResponse(
+  response: Response,
+  reference: string
+): Promise<PassageTextResult> {
+  let data: BibleApiResponse
   try {
-    const response = await fetch(url, { signal: controller.signal })
-    if (!response.ok) {
-      throw new Error(`Could not load Scripture (${response.status}). Check your connection.`)
+    data = (await response.json()) as BibleApiResponse
+  } catch {
+    throw new Error(`Scripture service returned an unexpected response (${response.status}).`)
+  }
+
+  if (!response.ok || data.error) {
+    const detail = data.error?.trim()
+    if (response.status === 404 || detail === 'not found') {
+      throw new Error(
+        `Could not find "${reference}". Use a form like "Romans 12:1-2" or "John 3:16".`
+      )
     }
-    const data = (await response.json()) as BibleApiResponse
-    const formatted = formatPassageFromApi(data.verses, data.text ?? '')
-    const result: PassageTextResult = {
-      text: formatted.text,
-      verses: formatted.verses,
-      translationName: data.translation_name ?? PASSAGE_TRANSLATION_LABEL,
-      reference: data.reference ?? reference,
-      delivery: 'network',
-    }
-    if (!result.text) {
-      throw new Error('This reference returned no verse text. Try a shorter passage or check the reference.')
-    }
-    return result
+    throw new Error(detail || `Scripture service error (${response.status}). Try again shortly.`)
+  }
+
+  const formatted = formatPassageFromApi(data.verses, data.text ?? '')
+  const result: PassageTextResult = {
+    text: formatted.text,
+    verses: formatted.verses,
+    translationName: data.translation_name ?? PASSAGE_TRANSLATION_LABEL,
+    reference: data.reference ?? reference,
+    delivery: 'network',
+  }
+  if (!result.text) {
+    throw new Error('This reference returned no verse text. Try a shorter range or check the reference.')
+  }
+  return result
+}
+
+async function fetchFromNetworkOnce(reference: string, useTranslation: boolean): Promise<PassageTextResult> {
+  const path = bibleApiPathForReference(reference)
+  const query = useTranslation ? `?translation=${PASSAGE_TRANSLATION_ID}` : ''
+  const url = `https://bible-api.com/${path}${query}`
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), 25_000)
+  try {
+    const response = await fetch(url, {
+      signal: controller.signal,
+      headers: {
+        Accept: 'application/json',
+      },
+    })
+    return await parsePassageResponse(response, reference)
   } catch (e) {
     if (e instanceof Error && e.name === 'AbortError') {
-      throw new Error('Scripture load timed out. Check your connection and try again.')
+      throw new Error('Scripture load timed out. Try again when the connection is stable.')
     }
-    throw e
+    if (e instanceof Error && !isTransientNetworkError(e.message)) {
+      throw e
+    }
+    throw e instanceof Error ? e : new Error('Could not reach the Scripture service.')
   } finally {
     clearTimeout(timeout)
   }
+}
+
+async function fetchFromNetwork(reference: string): Promise<PassageTextResult> {
+  let lastError: unknown
+  for (const useTranslation of [true, false] as const) {
+    try {
+      return await fetchFromNetworkOnce(reference, useTranslation)
+    } catch (e) {
+      lastError = e
+      const msg = e instanceof Error ? e.message : String(e)
+      if (msg.includes('Could not find')) {
+        throw e
+      }
+    }
+  }
+  throw lastError instanceof Error ? lastError : new Error('Could not reach the Scripture service.')
 }
 
 async function persistAndReturn(key: string, result: PassageTextResult): Promise<PassageTextResult> {
@@ -125,6 +184,9 @@ export async function fetchPassageText(
   options?: FetchPassageOptions
 ): Promise<PassageTextResult> {
   const reference = normalizeBibleReference(rawReference)
+  if (!reference) {
+    throw new Error('Enter a Bible reference (for example Romans 12:1-2).')
+  }
   const key = cacheKeyFor(reference)
   const cached = await getCachedPassage(key)
 

@@ -7,6 +7,7 @@ import { LoadingBlock } from '../components/LoadingBlock'
 import { SurfaceCard } from '../components/SurfaceCard'
 import { getHymnById } from '../data/hymnCatalog'
 import { deletePreparation, loadPreparations } from '../storage/savedPreparations'
+import { TYPE } from '../constants'
 import type { SavedPreparation } from '../types'
 
 export function SavedScreen() {
@@ -45,7 +46,7 @@ export function SavedScreen() {
           </Text>
           <Text
             color="$color11"
-            lineHeight={21}
+            {...TYPE.body}
           >
             From Today, find matching hymns and tap Save on a hymn you choose. It will appear here.
           </Text>
@@ -64,22 +65,28 @@ export function SavedScreen() {
               key={item.id}
               accent="green"
             >
-              <Text fontWeight="700">
+              <Text
+                fontWeight="700"
+                {...TYPE.body}
+              >
                 {item.date} · {item.reference}
               </Text>
-              <Text color="$color11">{item.sermonTheme}</Text>
+              <Text
+                color="$color11"
+                {...TYPE.body}
+              >
+                {item.sermonTheme}
+              </Text>
               {hymn ? (
-                <Text fontWeight="600">
+                <Text
+                  fontWeight="600"
+                  {...TYPE.body}
+                >
                   #{hymn.number} {hymn.title}
                 </Text>
               ) : null}
               {item.notes ? (
-                <Text
-                  fontSize={14}
-                  lineHeight={20}
-                >
-                  {item.notes}
-                </Text>
+                <Text {...TYPE.bodySmall}>{item.notes}</Text>
               ) : null}
               <Button
                 {...PressPresets.secondary}

@@ -1,4 +1,5 @@
 import { Text, YStack } from '@my/ui'
+import { TYPE } from '../constants'
 import type { ScriptureVerse } from '../types'
 
 type ScripturePassageTextProps = {
@@ -18,8 +19,7 @@ export function ScripturePassageText({ text, verses }: ScripturePassageTextProps
           return (
             <Text
               key={`${v.chapter}-${v.verse}`}
-              fontSize={15}
-              lineHeight={24}
+              {...TYPE.scripture}
               color="$color12"
             >
               <Text
@@ -38,8 +38,7 @@ export function ScripturePassageText({ text, verses }: ScripturePassageTextProps
 
   return (
     <Text
-      fontSize={15}
-      lineHeight={24}
+      {...TYPE.scripture}
       color="$color12"
     >
       {text}

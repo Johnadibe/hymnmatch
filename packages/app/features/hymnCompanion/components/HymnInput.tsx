@@ -1,11 +1,13 @@
 import type { GetProps } from 'tamagui'
 import { Input, TextArea } from '@my/ui'
+import { TYPE } from '../constants'
 
 const placeholderColor = '#525252'
 
 export function HymnInput(props: GetProps<typeof Input>) {
   return (
     <Input
+      {...TYPE.body}
       backgroundColor="$background"
       borderWidth={1}
       borderColor="$borderColorHover"
@@ -21,6 +23,7 @@ export function HymnInput(props: GetProps<typeof Input>) {
 export function HymnTextArea(props: GetProps<typeof TextArea>) {
   return (
     <TextArea
+      {...TYPE.body}
       backgroundColor="$background"
       borderWidth={1}
       borderColor="$borderColorHover"

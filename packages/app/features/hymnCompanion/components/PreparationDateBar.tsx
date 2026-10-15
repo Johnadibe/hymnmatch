@@ -14,6 +14,7 @@ import {
   startOfLocalDay,
   upcomingWeekday,
 } from '../data/lectionary/preparationDate'
+import { TYPE } from '../constants'
 import { LectionaryDateSheet } from './LectionaryDateSheet'
 
 type PreparationDateBarProps = {
@@ -64,9 +65,8 @@ export function PreparationDateBar({ value, onChange }: PreparationDateBarProps)
   return (
     <YStack gap="$3">
       <Text
-        fontSize={13}
+        {...TYPE.bodySmall}
         color="$color10"
-        lineHeight={19}
       >
         Choose the day you are preaching on.
       </Text>
@@ -100,12 +100,12 @@ export function PreparationDateBar({ value, onChange }: PreparationDateBarProps)
           >
             <Text
               fontWeight="700"
-              fontSize={15}
+              {...TYPE.body}
             >
               {formatPreparationShort(value)}
             </Text>
             <Text
-              fontSize={12}
+              {...TYPE.caption}
               color="$color10"
               numberOfLines={1}
             >
@@ -147,7 +147,7 @@ export function PreparationDateBar({ value, onChange }: PreparationDateBarProps)
 
       {!isSameCalendarDay(value, deviceToday) ? (
         <Text
-          fontSize={12}
+          {...TYPE.caption}
           color="$blue11"
           fontWeight="600"
         >

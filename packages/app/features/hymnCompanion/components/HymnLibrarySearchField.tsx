@@ -39,7 +39,7 @@ export function HymnLibrarySearchField({
         placeholder={placeholder}
         placeholderTextColor="#737373"
         color="#171717"
-        fontSize={16}
+        fontSize={17}
         paddingVertical={0}
         autoCorrect={false}
         autoCapitalize="none"

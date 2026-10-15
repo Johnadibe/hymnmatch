@@ -8,7 +8,7 @@ import { ErrorPanel } from '../components/ErrorPanel'
 import { HymnSuggestionCard } from '../components/HymnSuggestionCard'
 import { LoadingBlock } from '../components/LoadingBlock'
 import { SurfaceCard } from '../components/SurfaceCard'
-import { HYMN_SUGGESTION_COUNT } from '../constants'
+import { HYMN_SUGGESTION_COUNT, TYPE } from '../constants'
 import { getHymnById } from '../data/hymnCatalog'
 import { matchHymnsWithGemini, type MatchResultMeta } from '../services/geminiHymnMatch'
 import { getActiveReading, setMatchSession } from '../storage/sessionReading'
@@ -141,21 +141,20 @@ export function SuggestionsScreen() {
           >
             <Text
               fontWeight="700"
-              fontSize={15}
+              {...TYPE.body}
             >
               {reading.title}
             </Text>
             {themeHint ? (
               <Text
-                fontSize={13}
+                {...TYPE.bodySmall}
                 color="$color10"
-                lineHeight={19}
               >
                 Your theme note: {themeHint}
               </Text>
             ) : (
               <Text
-                fontSize={13}
+                {...TYPE.bodySmall}
                 color="$color10"
               >
                 {HYMN_SUGGESTION_COUNT} hymns chosen to support the message of this passage.
@@ -184,8 +183,7 @@ export function SuggestionsScreen() {
       {result?.matchSource === 'catalogue-fallback' ? (
         <SurfaceCard accent="green">
           <Text
-            fontSize={14}
-            lineHeight={21}
+            {...TYPE.bodySmall}
             color="$color11"
           >
             Live suggestions were unavailable. These hymns are matched from the catalogue using
@@ -198,7 +196,7 @@ export function SuggestionsScreen() {
         <YStack gap="$2">
           <Text
             fontWeight="700"
-            fontSize={15}
+            {...TYPE.body}
             paddingHorizontal="$1"
           >
             Message themes
@@ -215,7 +213,7 @@ export function SuggestionsScreen() {
                 borderRadius="$10"
                 backgroundColor="$blue3"
                 color="$blue11"
-                fontSize={13}
+                {...TYPE.caption}
                 fontWeight="600"
               >
                 {theme}
@@ -278,7 +276,7 @@ export function SuggestionsScreen() {
           </XStack>
           {feedback ? (
             <Text
-              fontSize={13}
+              {...TYPE.bodySmall}
               color="$color10"
               marginTop="$2"
             >

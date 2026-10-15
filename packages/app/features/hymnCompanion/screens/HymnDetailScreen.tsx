@@ -8,6 +8,7 @@ import { SurfaceCard } from '../components/SurfaceCard'
 import { getHymnById } from '../data/hymnCatalog'
 import { getMatchSession } from '../storage/sessionReading'
 import { savePreparation } from '../storage/savedPreparations'
+import { TYPE } from '../constants'
 import type { SavedPreparation } from '../types'
 
 export function HymnDetailScreen() {
@@ -43,7 +44,12 @@ export function HymnDetailScreen() {
         subtitle="This hymn is not in the catalogue."
         onBack={() => router.back()}
       >
-        <Text color="$color11">Choose another hymn from the library or suggestions list.</Text>
+        <Text
+          color="$color11"
+          {...TYPE.body}
+        >
+          Choose another hymn from the library or suggestions list.
+        </Text>
       </AppScreen>
     )
   }
@@ -82,8 +88,7 @@ export function HymnDetailScreen() {
             Igbo text
           </Text>
           <Text
-            fontSize={15}
-            lineHeight={24}
+            {...TYPE.scripture}
             color="$color11"
           >
             {hymn.lyricsIgbo}
@@ -92,9 +97,8 @@ export function HymnDetailScreen() {
       ) : hymn.firstLine ? (
         <SurfaceCard accent="blue">
           <Text
-            fontSize={16}
+            {...TYPE.body}
             fontStyle="italic"
-            lineHeight={24}
             color="$color11"
           >
             “{hymn.firstLine}”
@@ -105,10 +109,15 @@ export function HymnDetailScreen() {
       {hymn.englishHymnalRefs ? (
         <SurfaceCard>
           <Text fontWeight="700">English hymnbook (reference)</Text>
-          <Text color="$color11">{hymn.englishHymnalRefs}</Text>
+          <Text
+            color="$color11"
+            {...TYPE.body}
+          >
+            {hymn.englishHymnalRefs}
+          </Text>
           {!hymn.verified ? (
             <Text
-              fontSize={12}
+              {...TYPE.caption}
               color="$color9"
               marginTop="$2"
             >
@@ -120,18 +129,31 @@ export function HymnDetailScreen() {
 
       <SurfaceCard>
         <Text fontWeight="700">Themes</Text>
-        <Text color="$color11">{hymn.themes.join(' · ')}</Text>
+        <Text
+          color="$color11"
+          {...TYPE.body}
+        >
+          {hymn.themes.join(' · ')}
+        </Text>
       </SurfaceCard>
 
       <SurfaceCard>
         <Text fontWeight="700">Scripture (editorial)</Text>
-        <Text color="$color11">{hymn.scriptureRefs.join(' · ')}</Text>
+        <Text
+          color="$color11"
+          {...TYPE.body}
+        >
+          {hymn.scriptureRefs.join(' · ')}
+        </Text>
       </SurfaceCard>
 
       {reference ? (
         <SurfaceCard accent="green">
           <Text fontWeight="700">Sermon context</Text>
-          <Text color="$color11">
+          <Text
+            color="$color11"
+            {...TYPE.body}
+          >
             {reference} · {sermonTitle}
           </Text>
         </SurfaceCard>
@@ -158,9 +180,8 @@ export function HymnDetailScreen() {
       </Button>
 
       <Text
-        fontSize={12}
+        {...TYPE.caption}
         color="$color9"
-        lineHeight={18}
       >
         Suggestions use the English equivalent above; verify Abu {hymn.number} with your hymn leader before Sunday.
       </Text>

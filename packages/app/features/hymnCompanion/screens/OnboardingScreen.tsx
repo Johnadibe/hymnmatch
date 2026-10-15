@@ -100,8 +100,8 @@ export function OnboardingScreen() {
             {slide.title}
           </Text>
           <Text
-            fontSize={16}
-            lineHeight={24}
+            fontSize={17}
+            lineHeight={26}
             color="rgba(255,255,255,0.95)"
             textAlign="center"
             maxWidth={width - 80}
