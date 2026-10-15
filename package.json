@@ -7,7 +7,7 @@
   ],
   "scripts": {
     "native": "cd apps/expo && yarn start",
-    "native:prebuild": "cd apps/expo && yarn prebuild",
+    "native:prebuild": "cd apps/expo && yarn prebuild:android",
     "ios": "cd apps/expo && yarn ios",
     "android": "cd apps/expo && yarn android",
     "build": "yarn workspaces foreach --all run build",
