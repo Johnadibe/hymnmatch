@@ -8,7 +8,7 @@
     "android": "npx expo run:android",
     "ios": "yarn fix-xcode-env && npx expo run:ios",
     "fix-xcode-env": "node scripts/fix-xcode-env.mjs",
-    "prebuild": "yarn expo prebuild && node scripts/patch-android-splash.mjs",
+    "prebuild": "node scripts/eas-android-prebuild.mjs",
     "generate-brand-assets": "node scripts/generate-brand-assets.mjs",
     "patch-android-splash": "node scripts/patch-android-splash.mjs",
     "test": "vitest run",

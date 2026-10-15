@@ -21,6 +21,18 @@
     "production": {
       "autoIncrement": true,
       "extends": "base"
+    },
+    "apk": {
+      "extends": "preview",
+      "developmentClient": false,
+      "distribution": "internal",
+      "env": {
+        "NODE_ENV": "production"
+      },
+      "android": {
+        "buildType": "apk"
+      },
+      "prebuildCommand": "node apps/expo/scripts/eas-android-prebuild.mjs"
     }
   },
   "submit": {

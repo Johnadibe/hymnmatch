@@ -17,7 +17,7 @@
       "android": {
         "buildType": "app-bundle"
       },
-      "prebuildCommand": "npx expo prebuild --platform android && node scripts/patch-android-splash.mjs"
+      "prebuildCommand": "node scripts/eas-android-prebuild.mjs"
     },
     "apk": {
       "developmentClient": false,
@@ -28,7 +28,7 @@
       "android": {
         "buildType": "apk"
       },
-      "prebuildCommand": "npx expo prebuild --platform android && node scripts/patch-android-splash.mjs"
+      "prebuildCommand": "node scripts/eas-android-prebuild.mjs"
     }
   },
   "cli": {
