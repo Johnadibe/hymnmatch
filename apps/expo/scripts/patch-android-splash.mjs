@@ -10,12 +10,22 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const expoRoot = path.join(__dirname, '..')
 const androidRes = path.join(expoRoot, 'android', 'app', 'src', 'main', 'res')
 const stylesPath = path.join(androidRes, 'values', 'styles.xml')
-const splashSource = path.join(expoRoot, 'assets', 'splash-full.png')
+const splashSource = path.join(expoRoot, 'assets', 'splash-mark.png')
 
 const splashBackgroundXml = `<?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
   <item>
-    <bitmap android:gravity="fill" android:filter="true" android:dither="true" android:src="@drawable/splashscreen_full_bleed"/>
+    <shape android:shape="rectangle">
+      <gradient
+        android:angle="270"
+        android:startColor="#2F6BFF"
+        android:centerColor="#4E9BFF"
+        android:endColor="#5AEBB0"
+        android:type="linear" />
+    </shape>
+  </item>
+  <item android:gravity="center" android:width="270dp" android:height="239dp">
+    <bitmap android:gravity="fill" android:filter="true" android:antialias="true" android:src="@drawable/splashscreen_mark"/>
   </item>
 </layer-list>
 `
@@ -41,7 +51,7 @@ if (!fs.existsSync(stylesPath)) {
 }
 
 if (!fs.existsSync(splashSource)) {
-  console.error('Missing splash-full.png — run: yarn generate-brand-assets')
+  console.error('Missing splash-mark.png — run: yarn generate-brand-assets')
   process.exit(1)
 }
 
@@ -51,9 +61,9 @@ fs.mkdirSync(drawableDir, { recursive: true })
 fs.mkdirSync(nodpiDir, { recursive: true })
 fs.writeFileSync(path.join(drawableDir, 'splashscreen_full_bleed_background.xml'), splashBackgroundXml)
 fs.writeFileSync(path.join(drawableDir, 'splashscreen_empty.xml'), emptySplashIconXml)
-fs.copyFileSync(splashSource, path.join(nodpiDir, 'splashscreen_full_bleed.png'))
+fs.copyFileSync(splashSource, path.join(nodpiDir, 'splashscreen_mark.png'))
 
-for (const folder of ['drawable', 'drawable-mdpi', 'drawable-hdpi', 'drawable-xhdpi', 'drawable-xxhdpi', 'drawable-xxxhdpi']) {
+for (const folder of ['drawable', 'drawable-mdpi', 'drawable-hdpi', 'drawable-xhdpi', 'drawable-xxhdpi', 'drawable-xxxhdpi', 'drawable-nodpi']) {
   const scaled = path.join(androidRes, folder, 'splashscreen_full_bleed.png')
   if (fs.existsSync(scaled)) fs.unlinkSync(scaled)
 }
@@ -65,4 +75,4 @@ if (next === styles) {
   process.exit(1)
 }
 fs.writeFileSync(stylesPath, next)
-console.log('Patched Android splash to one bright full-bleed screen')
+console.log('Patched Android splash to bright gradient with a circular seal')

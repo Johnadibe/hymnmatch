@@ -13,6 +13,8 @@ import {
   GRADIENT_END,
   GRADIENT_START,
   LOGO_DIAMETER,
+  MARK_PAD_Y,
+  MARK_W,
   SPLASH_H,
   SPLASH_W,
   TITLE_FONT_PX,
@@ -77,7 +79,7 @@ async function buildLauncherIcon() {
 
 async function circularLogoBuffer() {
   const resized = await sharp(sourcePath)
-    .resize(LOGO_DIAMETER, LOGO_DIAMETER, { fit: 'cover', position: 'centre' })
+    .resize(LOGO_DIAMETER, LOGO_DIAMETER, { fit: 'contain', background: { r: 255, g: 255, b: 255, alpha: 1 } })
     .png()
     .toBuffer()
 
@@ -88,49 +90,68 @@ async function circularLogoBuffer() {
   return sharp(resized).composite([{ input: mask, blend: 'dest-in' }]).png().toBuffer()
 }
 
-function wordmarkSvg(titleY) {
+function markHeight() {
+  return MARK_PAD_Y + LOGO_DIAMETER + GAP_AFTER_LOGO + TITLE_FONT_PX + MARK_PAD_Y
+}
+
+function markSvg(height) {
+  const titleY = MARK_PAD_Y + LOGO_DIAMETER + GAP_AFTER_LOGO + TITLE_FONT_PX * 0.82
+  const halo = Math.round(LOGO_DIAMETER * 1.08)
+  const haloX = Math.round((MARK_W - halo) / 2)
+  const haloY = MARK_PAD_Y - Math.round((halo - LOGO_DIAMETER) / 2)
   return Buffer.from(
-    `<svg width="${SPLASH_W}" height="${SPLASH_H}" xmlns="http://www.w3.org/2000/svg">
-  <text x="${SPLASH_W / 2}" y="${titleY}" text-anchor="middle" font-family="Plus Jakarta Sans, Arial, Helvetica, sans-serif" font-size="${TITLE_FONT_PX}" font-weight="800" letter-spacing="-2">
-    <tspan fill="#FFFFFF">Hymn</tspan><tspan fill="#FFD54F">Match</tspan>
+    `<svg width="${MARK_W}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="${MARK_W / 2}" cy="${haloY + halo / 2}" r="${halo / 2}" fill="rgba(255,255,255,0.16)"/>
+  <text x="${MARK_W / 2}" y="${titleY}" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="${TITLE_FONT_PX}" font-weight="800" letter-spacing="-1.5">
+    <tspan fill="#FFFFFF">Hymn</tspan><tspan fill="#FFE566">Match</tspan>
   </text>
 </svg>`
   )
 }
 
-function computeLayout() {
-  const titleLine = TITLE_FONT_PX
-  const blockHeight = LOGO_DIAMETER + GAP_AFTER_LOGO + titleLine
-  const logoY = Math.round((SPLASH_H - blockHeight) / 2)
-  const titleY = logoY + LOGO_DIAMETER + GAP_AFTER_LOGO + titleLine * 0.85
-  return { logoY, titleY }
+async function buildSplashMark() {
+  const height = markHeight()
+  const logo = await circularLogoBuffer()
+  const logoLeft = Math.round((MARK_W - LOGO_DIAMETER) / 2)
+  const markPath = path.join(assetsDir, 'splash-mark.png')
+
+  await sharp({
+    create: { width: MARK_W, height, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } },
+  })
+    .composite([
+      { input: markSvg(height), top: 0, left: 0 },
+      { input: logo, top: MARK_PAD_Y, left: logoLeft },
+    ])
+    .png()
+    .toFile(markPath)
+
+  console.log('Wrote splash-mark.png', MARK_W, 'x', height)
+  return { markPath, height }
 }
 
-async function buildSplashFull() {
+async function buildSplashFull(markPath) {
   const splash = new Jimp(SPLASH_W, SPLASH_H)
   splash.scan(0, 0, SPLASH_W, SPLASH_H, function (x, y) {
     const { r, g, b } = expoLinearGradientColor(x, y)
     this.setPixelColor(Jimp.rgbaToInt(r, g, b, 255), x, y)
   })
 
-  const layout = computeLayout()
-  const logoBuffer = await circularLogoBuffer()
-  const logoLeft = Math.round((SPLASH_W - LOGO_DIAMETER) / 2)
+  const mark = await sharp(markPath).png().toBuffer()
+  const meta = await sharp(mark).metadata()
+  const targetW = 780
+  const targetH = Math.round((targetW * meta.height) / meta.width)
+  const resized = await sharp(mark).resize(targetW, targetH).png().toBuffer()
+  const left = Math.round((SPLASH_W - targetW) / 2)
+  const top = Math.round((SPLASH_H - targetH) / 2)
 
-  const baseBuffer = await splash.getBufferAsync(Jimp.MIME_PNG)
   const outExpo = path.join(assetsDir, 'splash-full.png')
   const outApp = path.join(hymnCompanionAssets, 'splash-bootstrap.png')
-
-  await sharp(baseBuffer)
-    .composite([
-      { input: logoBuffer, top: layout.logoY, left: logoLeft },
-      { input: wordmarkSvg(layout.titleY), top: 0, left: 0 },
-    ])
+  await sharp(await splash.getBufferAsync(Jimp.MIME_PNG))
+    .composite([{ input: resized, left, top }])
     .png()
     .toFile(outExpo)
-
   fs.copyFileSync(outExpo, outApp)
-  console.log('Wrote splash-full.png + packages/.../splash-bootstrap.png')
+  console.log('Wrote splash-full.png + splash-bootstrap.png')
 }
 
 async function main() {
@@ -141,7 +162,8 @@ async function main() {
 
   fs.mkdirSync(hymnCompanionAssets, { recursive: true })
   await buildLauncherIcon()
-  await buildSplashFull()
+  const { markPath } = await buildSplashMark()
+  await buildSplashFull(markPath)
   fs.copyFileSync(sourcePath, path.join(hymnCompanionAssets, 'acppb-logo.jpg'))
 }
 

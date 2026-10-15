@@ -29,7 +29,17 @@ function stripFirebaseManifestMeta(manifestConfig) {
 const splashBackgroundXml = `<?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
   <item>
-    <bitmap android:gravity="fill" android:filter="true" android:dither="true" android:src="@drawable/splashscreen_full_bleed"/>
+    <shape android:shape="rectangle">
+      <gradient
+        android:angle="270"
+        android:startColor="#2F6BFF"
+        android:centerColor="#4E9BFF"
+        android:endColor="#5AEBB0"
+        android:type="linear" />
+    </shape>
+  </item>
+  <item android:gravity="center" android:width="270dp" android:height="239dp">
+    <bitmap android:gravity="fill" android:filter="true" android:antialias="true" android:src="@drawable/splashscreen_mark"/>
   </item>
 </layer-list>
 `
@@ -62,7 +72,7 @@ const emptySplashIconXml = `<?xml version="1.0" encoding="utf-8"?>
 `
 
 function installFullScreenSplashAssets(projectRoot, platformRoot) {
-  const source = path.join(projectRoot, 'assets', 'splash-full.png')
+  const source = path.join(projectRoot, 'assets', 'splash-mark.png')
   if (!fs.existsSync(source)) {
     return
   }
@@ -74,9 +84,9 @@ function installFullScreenSplashAssets(projectRoot, platformRoot) {
   fs.mkdirSync(nodpiDir, { recursive: true })
   fs.writeFileSync(path.join(drawableDir, 'splashscreen_full_bleed_background.xml'), splashBackgroundXml)
   fs.writeFileSync(path.join(drawableDir, 'splashscreen_empty.xml'), emptySplashIconXml)
-  fs.copyFileSync(source, path.join(nodpiDir, 'splashscreen_full_bleed.png'))
+  fs.copyFileSync(source, path.join(nodpiDir, 'splashscreen_mark.png'))
 
-  for (const folder of ['drawable', 'drawable-mdpi', 'drawable-hdpi', 'drawable-xhdpi', 'drawable-xxhdpi', 'drawable-xxxhdpi']) {
+  for (const folder of ['drawable', 'drawable-mdpi', 'drawable-hdpi', 'drawable-xhdpi', 'drawable-xxhdpi', 'drawable-xxxhdpi', 'drawable-nodpi']) {
     const scaled = path.join(resRoot, folder, 'splashscreen_full_bleed.png')
     if (fs.existsSync(scaled)) fs.unlinkSync(scaled)
   }

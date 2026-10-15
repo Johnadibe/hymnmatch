@@ -11,7 +11,7 @@
     "splash": {
       "image": "./assets/splash-full.png",
       "resizeMode": "cover",
-      "backgroundColor": "#0E1A4D"
+      "backgroundColor": "#2F6BFF"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -44,16 +44,16 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#0E1A4D",
+          "backgroundColor": "#2F6BFF",
           "image": "./assets/splash-full.png",
           "resizeMode": "cover",
           "android": {
-            "backgroundColor": "#0E1A4D",
+            "backgroundColor": "#2F6BFF",
             "image": "./assets/splash-full.png",
             "resizeMode": "cover"
           },
           "ios": {
-            "backgroundColor": "#0E1A4D",
+            "backgroundColor": "#2F6BFF",
             "image": "./assets/splash-full.png",
             "resizeMode": "cover"
           }
