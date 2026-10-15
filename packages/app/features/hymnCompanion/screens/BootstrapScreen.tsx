@@ -1,84 +1,59 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
+import { ImageBackground, StyleSheet } from 'react-native'
 import { useRouter } from 'expo-router'
 import * as ExpoSplashScreen from 'expo-splash-screen'
-import { LinearGradient } from 'expo-linear-gradient'
-import { Text, YStack } from '@my/ui'
-import { BookOpen } from '@tamagui/lucide-icons'
-import { BrandMark } from '../components/BrandMark'
 import { isOnboardingComplete } from '../storage/onboarding'
+
+const splashImage = require('../assets/splash-bootstrap.png')
 
 const MIN_SPLASH_MS = 900
 
+/**
+ * Same PNG as native splash (splash-full.png). Native hides only after this image paints
+ * so there is no navy flash or layout jump.
+ */
 export function BootstrapScreen() {
   const router = useRouter()
   const started = useRef(false)
-  const [taglineVisible, setTaglineVisible] = useState(false)
+  const nativeHidden = useRef(false)
+
+  const hideNativeWhenReady = useCallback(() => {
+    if (nativeHidden.current) return
+    nativeHidden.current = true
+    void ExpoSplashScreen.hideAsync()
+  }, [])
 
   useEffect(() => {
-    const t = setTimeout(() => setTaglineVisible(true), 400)
-    return () => clearTimeout(t)
-  }, [])
+    const fallback = setTimeout(() => hideNativeWhenReady(), 1500)
+    return () => clearTimeout(fallback)
+  }, [hideNativeWhenReady])
 
   useEffect(() => {
     if (started.current) return
     started.current = true
 
-    const bootstrap = async () => {
+    void (async () => {
       const delay = new Promise((r) => setTimeout(r, MIN_SPLASH_MS))
       const [complete] = await Promise.all([isOnboardingComplete(), delay])
-
-      await ExpoSplashScreen.hideAsync()
 
       if (complete) {
         router.replace('/(tabs)/today')
       } else {
         router.replace('/onboarding')
       }
-    }
-
-    void bootstrap()
+    })()
   }, [router])
 
   return (
-    <LinearGradient
-      colors={['#0E1A4D', '#335CFF', '#1FC16B']}
-      start={{ x: 0.2, y: 0 }}
-      end={{ x: 0.8, y: 1 }}
-      style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32 }}
-    >
-      <YStack
-        alignItems="center"
-        gap="$2"
-      >
-        <BrandMark size="splash" />
-        <Text
-          fontSize={16}
-          color="rgba(255,255,255,0.9)"
-          textAlign="center"
-          marginTop="$4"
-        >
-          Sermon &amp; Hymn Companion
-        </Text>
-        {taglineVisible ? (
-          <YStack
-            flexDirection="row"
-            alignItems="center"
-            gap="$2"
-            marginTop="$3"
-          >
-            <BookOpen
-              size={18}
-              color="rgba(255,255,255,0.85)"
-            />
-            <Text
-              fontSize={14}
-              color="rgba(255,255,255,0.85)"
-            >
-              Match the message, not just the words
-            </Text>
-          </YStack>
-        ) : null}
-      </YStack>
-    </LinearGradient>
+    <ImageBackground
+      source={splashImage}
+      style={styles.fill}
+      resizeMode="cover"
+      onLoadEnd={hideNativeWhenReady}
+    />
   )
 }
+
+const styles = StyleSheet.create({
+  fill: { flex: 1 },
+})

@@ -46,19 +46,16 @@
         {
           "backgroundColor": "#0E1A4D",
           "image": "./assets/splash-full.png",
-          "imageWidth": 400,
           "resizeMode": "cover",
           "android": {
             "backgroundColor": "#0E1A4D",
             "image": "./assets/splash-full.png",
-            "resizeMode": "cover",
-            "imageWidth": 400
+            "resizeMode": "cover"
           },
           "ios": {
             "backgroundColor": "#0E1A4D",
             "image": "./assets/splash-full.png",
-            "imageWidth": 320,
-            "resizeMode": "contain"
+            "resizeMode": "cover"
           }
         }
       ],

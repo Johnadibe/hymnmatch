@@ -19,7 +19,7 @@ export const unstable_settings = {
   initialRouteName: 'index',
 }
 
-// Keep native splash visible until bootstrap screen calls hideAsync()
+// Solid native splash while fonts load; BootstrapScreen hides it on first paint.
 void ExpoSplashScreen.preventAutoHideAsync()
 
 export default function App() {

@@ -34,6 +34,26 @@ const splashBackgroundXml = `<?xml version="1.0" encoding="utf-8"?>
 </layer-list>
 `
 
+/** Centered icon splash (Android 12+) — remove so only full-bleed PNG shows. */
+function removeCenteredSplashIconDrawables(platformRoot) {
+  const resRoot = path.join(platformRoot, 'app', 'src', 'main', 'res')
+  if (!fs.existsSync(resRoot)) return
+
+  const walk = (dir) => {
+    for (const name of fs.readdirSync(dir)) {
+      const full = path.join(dir, name)
+      if (fs.statSync(full).isDirectory()) {
+        walk(full)
+        continue
+      }
+      if (/^splashscreen_logo(\.|$)/.test(name) || name === 'splashscreen.xml') {
+        fs.unlinkSync(full)
+      }
+    }
+  }
+  walk(resRoot)
+}
+
 function installFullScreenSplashAssets(projectRoot, platformRoot) {
   const source = path.join(projectRoot, 'assets', 'splash-full.png')
   if (!fs.existsSync(source)) {
@@ -176,6 +196,7 @@ tasks.named("preBuild").configure { dependsOn("patchHymnMatchSplashStyle") }
       const platformRoot = modConfig.modRequest.platformProjectRoot
       const projectRoot = modConfig.modRequest.projectRoot
       installFullScreenSplashAssets(projectRoot, platformRoot)
+      removeCenteredSplashIconDrawables(platformRoot)
       ensureNotificationIconDrawable(platformRoot)
       patchSplashStylesOnDisk(platformRoot)
 

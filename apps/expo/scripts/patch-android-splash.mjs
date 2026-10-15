@@ -1,6 +1,5 @@
 /**
- * Expo may re-write Theme.App.SplashScreen after config plugins. Force full-bleed splash.
- * Run after prebuild: node apps/expo/scripts/patch-android-splash.mjs
+ * Force full-bleed bootstrap PNG as Android launch background (matches BootstrapScreen).
  */
 import fs from 'fs'
 import path from 'path'
@@ -58,4 +57,4 @@ if (next === styles) {
   process.exit(1)
 }
 fs.writeFileSync(stylesPath, next)
-console.log('Patched Android splash to full-bleed HymnMatch screen')
+console.log('Patched Android splash to full-bleed bootstrap PNG')
