@@ -1,5 +1,6 @@
 /**
- * Force full-bleed bootstrap PNG as Android launch background (matches BootstrapScreen).
+ * Full-bleed bright splash PNG as the only Android launch screen.
+ * PNG lives in drawable-nodpi so Android does not density-scale it darker/blurrier.
  */
 import fs from 'fs'
 import path from 'path'
@@ -14,13 +15,24 @@ const splashSource = path.join(expoRoot, 'assets', 'splash-full.png')
 const splashBackgroundXml = `<?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
   <item>
-    <bitmap android:gravity="fill" android:src="@drawable/splashscreen_full_bleed"/>
+    <bitmap android:gravity="fill" android:filter="true" android:dither="true" android:src="@drawable/splashscreen_full_bleed"/>
   </item>
 </layer-list>
 `
 
-const splashStyleBlock = `<style name="Theme.App.SplashScreen" parent="AppTheme">
+const emptySplashIconXml = `<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+  <size android:width="1dp" android:height="1dp" />
+  <solid android:color="@android:color/transparent" />
+</shape>
+`
+
+const splashStyleBlock = `<style name="Theme.App.SplashScreen" parent="Theme.SplashScreen">
     <item name="android:windowBackground">@drawable/splashscreen_full_bleed_background</item>
+    <item name="android:forceDarkAllowed">false</item>
+    <item name="windowSplashScreenBackground">@android:color/transparent</item>
+    <item name="windowSplashScreenAnimatedIcon">@drawable/splashscreen_empty</item>
+    <item name="postSplashScreenTheme">@style/AppTheme</item>
   </style>`
 
 if (!fs.existsSync(stylesPath)) {
@@ -34,20 +46,16 @@ if (!fs.existsSync(splashSource)) {
 }
 
 const drawableDir = path.join(androidRes, 'drawable')
+const nodpiDir = path.join(androidRes, 'drawable-nodpi')
 fs.mkdirSync(drawableDir, { recursive: true })
+fs.mkdirSync(nodpiDir, { recursive: true })
 fs.writeFileSync(path.join(drawableDir, 'splashscreen_full_bleed_background.xml'), splashBackgroundXml)
+fs.writeFileSync(path.join(drawableDir, 'splashscreen_empty.xml'), emptySplashIconXml)
+fs.copyFileSync(splashSource, path.join(nodpiDir, 'splashscreen_full_bleed.png'))
 
-for (const folder of [
-  'drawable',
-  'drawable-mdpi',
-  'drawable-hdpi',
-  'drawable-xhdpi',
-  'drawable-xxhdpi',
-  'drawable-xxxhdpi',
-]) {
-  const dir = path.join(androidRes, folder)
-  fs.mkdirSync(dir, { recursive: true })
-  fs.copyFileSync(splashSource, path.join(dir, 'splashscreen_full_bleed.png'))
+for (const folder of ['drawable', 'drawable-mdpi', 'drawable-hdpi', 'drawable-xhdpi', 'drawable-xxhdpi', 'drawable-xxxhdpi']) {
+  const scaled = path.join(androidRes, folder, 'splashscreen_full_bleed.png')
+  if (fs.existsSync(scaled)) fs.unlinkSync(scaled)
 }
 
 let styles = fs.readFileSync(stylesPath, 'utf8')
@@ -57,4 +65,4 @@ if (next === styles) {
   process.exit(1)
 }
 fs.writeFileSync(stylesPath, next)
-console.log('Patched Android splash to full-bleed bootstrap PNG')
+console.log('Patched Android splash to one bright full-bleed screen')

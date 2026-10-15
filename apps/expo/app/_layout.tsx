@@ -19,7 +19,8 @@ export const unstable_settings = {
   initialRouteName: 'index',
 }
 
-// Solid native splash while fonts load; BootstrapScreen hides it on first paint.
+// One native splash (splash-full.png). No fade, so it does not look like a second screen.
+ExpoSplashScreen.setOptions({ duration: 0 })
 void ExpoSplashScreen.preventAutoHideAsync()
 
 export default function App() {

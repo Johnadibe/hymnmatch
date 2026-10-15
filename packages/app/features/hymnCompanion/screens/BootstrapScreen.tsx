@@ -1,32 +1,17 @@
-import { useCallback, useEffect, useRef } from 'react'
-import { ImageBackground, StyleSheet } from 'react-native'
+import { useEffect, useRef } from 'react'
 import { useRouter } from 'expo-router'
 import * as ExpoSplashScreen from 'expo-splash-screen'
 import { isOnboardingComplete } from '../storage/onboarding'
 
-const splashImage = require('../assets/splash-bootstrap.png')
-
-const MIN_SPLASH_MS = 900
+const MIN_SPLASH_MS = 1100
 
 /**
- * Same PNG as native splash (splash-full.png). Native hides only after this image paints
- * so there is no navy flash or layout jump.
+ * No second splash UI. The native splash stays up, then this routes straight to
+ * onboarding (first launch) or Today and removes the native splash with no fade.
  */
 export function BootstrapScreen() {
   const router = useRouter()
   const started = useRef(false)
-  const nativeHidden = useRef(false)
-
-  const hideNativeWhenReady = useCallback(() => {
-    if (nativeHidden.current) return
-    nativeHidden.current = true
-    void ExpoSplashScreen.hideAsync()
-  }, [])
-
-  useEffect(() => {
-    const fallback = setTimeout(() => hideNativeWhenReady(), 1500)
-    return () => clearTimeout(fallback)
-  }, [hideNativeWhenReady])
 
   useEffect(() => {
     if (started.current) return
@@ -36,24 +21,13 @@ export function BootstrapScreen() {
       const delay = new Promise((r) => setTimeout(r, MIN_SPLASH_MS))
       const [complete] = await Promise.all([isOnboardingComplete(), delay])
 
-      if (complete) {
-        router.replace('/(tabs)/today')
-      } else {
-        router.replace('/onboarding')
-      }
+      router.replace(complete ? '/(tabs)/today' : '/onboarding')
+
+      setTimeout(() => {
+        void ExpoSplashScreen.hideAsync()
+      }, 60)
     })()
   }, [router])
 
-  return (
-    <ImageBackground
-      source={splashImage}
-      style={styles.fill}
-      resizeMode="cover"
-      onLoadEnd={hideNativeWhenReady}
-    />
-  )
+  return null
 }
-
-const styles = StyleSheet.create({
-  fill: { flex: 1 },
-})

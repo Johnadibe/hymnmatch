@@ -29,7 +29,7 @@ function stripFirebaseManifestMeta(manifestConfig) {
 const splashBackgroundXml = `<?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
   <item>
-    <bitmap android:gravity="fill" android:src="@drawable/splashscreen_full_bleed"/>
+    <bitmap android:gravity="fill" android:filter="true" android:dither="true" android:src="@drawable/splashscreen_full_bleed"/>
   </item>
 </layer-list>
 `
@@ -54,6 +54,13 @@ function removeCenteredSplashIconDrawables(platformRoot) {
   walk(resRoot)
 }
 
+const emptySplashIconXml = `<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+  <size android:width="1dp" android:height="1dp" />
+  <solid android:color="@android:color/transparent" />
+</shape>
+`
+
 function installFullScreenSplashAssets(projectRoot, platformRoot) {
   const source = path.join(projectRoot, 'assets', 'splash-full.png')
   if (!fs.existsSync(source)) {
@@ -62,22 +69,17 @@ function installFullScreenSplashAssets(projectRoot, platformRoot) {
 
   const resRoot = path.join(platformRoot, 'app', 'src', 'main', 'res')
   const drawableDir = path.join(resRoot, 'drawable')
+  const nodpiDir = path.join(resRoot, 'drawable-nodpi')
   fs.mkdirSync(drawableDir, { recursive: true })
+  fs.mkdirSync(nodpiDir, { recursive: true })
   fs.writeFileSync(path.join(drawableDir, 'splashscreen_full_bleed_background.xml'), splashBackgroundXml)
+  fs.writeFileSync(path.join(drawableDir, 'splashscreen_empty.xml'), emptySplashIconXml)
+  fs.copyFileSync(source, path.join(nodpiDir, 'splashscreen_full_bleed.png'))
 
-  for (const folder of [
-    'drawable',
-    'drawable-mdpi',
-    'drawable-hdpi',
-    'drawable-xhdpi',
-    'drawable-xxhdpi',
-    'drawable-xxxhdpi',
-  ]) {
-    const dir = path.join(resRoot, folder)
-    fs.mkdirSync(dir, { recursive: true })
-    fs.copyFileSync(source, path.join(dir, 'splashscreen_full_bleed.png'))
+  for (const folder of ['drawable', 'drawable-mdpi', 'drawable-hdpi', 'drawable-xhdpi', 'drawable-xxhdpi', 'drawable-xxxhdpi']) {
+    const scaled = path.join(resRoot, folder, 'splashscreen_full_bleed.png')
+    if (fs.existsSync(scaled)) fs.unlinkSync(scaled)
   }
-
 }
 
 function applyFullScreenSplashStyle(styleConfig) {
@@ -91,21 +93,26 @@ function applyFullScreenSplashStyle(styleConfig) {
     {
       $: {
         name: 'Theme.App.SplashScreen',
-        parent: 'AppTheme',
+        parent: 'Theme.SplashScreen',
       },
       item: [
-        {
-          $: { name: 'android:windowBackground' },
-          _: '@drawable/splashscreen_full_bleed_background',
-        },
+        { $: { name: 'android:windowBackground' }, _: '@drawable/splashscreen_full_bleed_background' },
+        { $: { name: 'android:forceDarkAllowed' }, _: 'false' },
+        { $: { name: 'windowSplashScreenBackground' }, _: '@android:color/transparent' },
+        { $: { name: 'windowSplashScreenAnimatedIcon' }, _: '@drawable/splashscreen_empty' },
+        { $: { name: 'postSplashScreenTheme' }, _: '@style/AppTheme' },
       ],
     },
   ]
   return styleConfig
 }
 
-const splashStyleBlock = `<style name="Theme.App.SplashScreen" parent="AppTheme">
+const splashStyleBlock = `<style name="Theme.App.SplashScreen" parent="Theme.SplashScreen">
     <item name="android:windowBackground">@drawable/splashscreen_full_bleed_background</item>
+    <item name="android:forceDarkAllowed">false</item>
+    <item name="windowSplashScreenBackground">@android:color/transparent</item>
+    <item name="windowSplashScreenAnimatedIcon">@drawable/splashscreen_empty</item>
+    <item name="postSplashScreenTheme">@style/AppTheme</item>
   </style>`
 
 /** styles.xml on disk can differ from withAndroidStyles modResults; patch after other mods. */
@@ -174,7 +181,13 @@ tasks.register("patchHymnMatchSplashStyle") {
     doLast {
         def stylesFile = file("src/main/res/values/styles.xml")
         if (!stylesFile.exists()) return
-        def splashBlock = '<style name="Theme.App.SplashScreen" parent="AppTheme">\\n    <item name="android:windowBackground">@drawable/splashscreen_full_bleed_background</item>\\n  </style>'
+        def splashBlock = '''<style name="Theme.App.SplashScreen" parent="Theme.SplashScreen">
+    <item name="android:windowBackground">@drawable/splashscreen_full_bleed_background</item>
+    <item name="android:forceDarkAllowed">false</item>
+    <item name="windowSplashScreenBackground">@android:color/transparent</item>
+    <item name="windowSplashScreenAnimatedIcon">@drawable/splashscreen_empty</item>
+    <item name="postSplashScreenTheme">@style/AppTheme</item>
+  </style>'''
         def text = stylesFile.getText("UTF-8")
         def updated = text.replaceAll(
             '(?s)<style name="Theme\\\\.App\\\\.SplashScreen"[^>]*>.*?</style>',
