@@ -24,30 +24,42 @@ export function explainMatchError(message: string): {
   hint: string
 } {
   const lower = message.toLowerCase()
+  if (
+    lower.includes('no longer available') ||
+    lower.includes('models/gemini') ||
+    lower.includes('invalid model')
+  ) {
+    return {
+      title: 'Suggestions temporarily unavailable',
+      message:
+        'The hymn matching service could not connect with the configured model. The app will try other models automatically, or use catalogue matching.',
+      hint: 'Tap Try again. Set EXPO_PUBLIC_GEMINI_MODEL=gemini-3.8-flash in apps/expo/.env and restart Expo (yarn native -c).',
+    }
+  }
   if (lower.includes('api key') || lower.includes('403') || lower.includes('401')) {
     return {
-      title: 'AI key problem',
-      message: 'Gemini could not authorize your request.',
-      hint: 'Add EXPO_PUBLIC_GEMINI_API_KEY in apps/expo/.env and restart the app with yarn native.',
+      title: 'Suggestions unavailable',
+      message: 'Hymn matching is not configured on this build.',
+      hint: 'Add EXPO_PUBLIC_GEMINI_API_KEY in apps/expo/.env and restart with yarn native.',
     }
   }
   if (lower.includes('429') || lower.includes('quota') || lower.includes('rate')) {
     return {
-      title: 'Too many requests',
-      message: 'The free Gemini quota was exceeded for now.',
-      hint: 'Wait a few minutes and retry, or use offline fallback by removing the key temporarily.',
+      title: 'Please wait a moment',
+      message: 'Too many suggestion requests were sent in a short time.',
+      hint: 'Wait a few minutes and try again.',
     }
   }
   if (lower.includes('network') || lower.includes('fetch')) {
     return {
       title: 'Connection issue',
-      message: 'We could not reach Google Gemini.',
-      hint: 'Check your connection. Saved Scripture on this device is still available.',
+      message: 'We could not load hymn suggestions right now.',
+      hint: 'Check your connection. Your Scripture reading is still on this device.',
     }
   }
   return {
     title: 'Could not suggest hymns',
     message,
-    hint: 'Tap Try again. If it persists, check your Gemini key and internet.',
+    hint: 'Tap Try again. If it persists, check your internet connection.',
   }
 }

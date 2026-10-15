@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router'
 import { Dimensions } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import { Button, PressPresets, Text, XStack, YStack } from '@my/ui'
-import { BookOpen, Heart, Music2, Sparkles } from '@tamagui/lucide-icons'
+import { BookOpen, Heart, ListMusic, Music2 } from '@tamagui/lucide-icons'
 import { setOnboardingComplete } from '../storage/onboarding'
 
 const { width } = Dimensions.get('window')
@@ -16,7 +16,7 @@ const slides = [
     colors: ['#335CFF', '#628DFF'] as const,
   },
   {
-    icon: Sparkles,
+    icon: ListMusic,
     title: 'Match the message',
     body: 'We suggest hymns whose themes fit your sermon’s central message, not random keyword matches.',
     colors: ['#2A4AD4', '#1FC16B'] as const,

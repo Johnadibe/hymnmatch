@@ -1,6 +1,6 @@
 # HymnMatch MVP
 
-Sermon-to-hymn companion: load a daily Scripture passage, infer themes, and recommend two hymns from a sample **Ancient & Modern** / **Songs of Praise** catalogue using **Google Gemini** (with offline fallback).
+Sermon-to-hymn companion: load a daily Scripture passage, infer themes, and recommend four hymns from the **ACPPB Abu (Igbo)** catalogue using **Google Gemini** (with offline fallback).
 
 ## Run the app
 
@@ -44,7 +44,7 @@ If the key is missing, the app uses a simple local theme fallback (no network AI
 | Route | Purpose |
 |-------|---------|
 | `/today` | Daily passage, optional theme, custom reference |
-| `/suggestions` | Two AI recommendations + reasons |
+| `/suggestions` | Four AI recommendations + reasons |
 | `/hymn/[id]` | Hymn metadata, save preparation |
 | `/saved` | Offline saved preparations |
 

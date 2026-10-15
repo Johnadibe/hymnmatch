@@ -43,12 +43,7 @@ export function HymnDetailScreen() {
         subtitle="This hymn is not in the catalogue."
         onBack={() => router.back()}
       >
-        <Button
-          {...PressPresets.primary}
-          onPress={() => router.back()}
-        >
-          Go back
-        </Button>
+        <Text color="$color11">Choose another hymn from the library or suggestions list.</Text>
       </AppScreen>
     )
   }
@@ -74,11 +69,27 @@ export function HymnDetailScreen() {
 
   return (
     <AppScreen
-      title={hymn.title}
-      subtitle={`${hymn.collectionLabel} · Hymn ${hymn.number}`}
+      title={`Abu ${hymn.number}`}
+      subtitle={`${hymn.title} · ${hymn.titleEnglish}`}
       onBack={() => router.back()}
     >
-      {hymn.firstLine ? (
+      {hymn.lyricsIgbo ? (
+        <SurfaceCard accent="blue">
+          <Text
+            fontWeight="700"
+            marginBottom="$2"
+          >
+            Igbo text
+          </Text>
+          <Text
+            fontSize={15}
+            lineHeight={24}
+            color="$color11"
+          >
+            {hymn.lyricsIgbo}
+          </Text>
+        </SurfaceCard>
+      ) : hymn.firstLine ? (
         <SurfaceCard accent="blue">
           <Text
             fontSize={16}
@@ -88,6 +99,22 @@ export function HymnDetailScreen() {
           >
             “{hymn.firstLine}”
           </Text>
+        </SurfaceCard>
+      ) : null}
+
+      {hymn.englishHymnalRefs ? (
+        <SurfaceCard>
+          <Text fontWeight="700">English hymnbook (reference)</Text>
+          <Text color="$color11">{hymn.englishHymnalRefs}</Text>
+          {!hymn.verified ? (
+            <Text
+              fontSize={12}
+              color="$color9"
+              marginTop="$2"
+            >
+              Confirm numbers with your chapel’s Ancient &amp; Modern and SS&amp;S copies.
+            </Text>
+          ) : null}
         </SurfaceCard>
       ) : null}
 
@@ -135,7 +162,7 @@ export function HymnDetailScreen() {
         color="$color9"
         lineHeight={18}
       >
-        Full authorised lyrics can be added once you confirm distribution rights for your hymnbook.
+        Suggestions use the English equivalent above; verify Abu {hymn.number} with your hymn leader before Sunday.
       </Text>
     </AppScreen>
   )

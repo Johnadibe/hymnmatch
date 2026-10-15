@@ -2,11 +2,14 @@ import { useState } from 'react'
 import { Button, PressPresets, Text, XStack, YStack } from '@my/ui'
 import { Calendar, ChevronLeft, ChevronRight } from '@tamagui/lucide-icons'
 import {
-  addCalendarDays,
+  formatDateKey,
+  listAllLectionaryDays,
+  shiftLectionaryDate,
+} from '../data/lectionary/fellowshipLectionary'
+import {
   clampToLectionaryRange,
   formatPreparationHeading,
   formatPreparationShort,
-  getLectionaryBounds,
   isSameCalendarDay,
   startOfLocalDay,
   upcomingWeekday,
@@ -43,14 +46,16 @@ function QuickChip({
 }
 
 export function PreparationDateBar({ value, onChange }: PreparationDateBarProps) {
-  const bounds = getLectionaryBounds()
   const [sheetOpen, setSheetOpen] = useState(false)
   const deviceToday = startOfLocalDay(new Date())
-  const atMin = bounds ? value.getTime() <= bounds.min.getTime() : false
-  const atMax = bounds ? value.getTime() >= bounds.max.getTime() : false
+  const lectionaryDays = listAllLectionaryDays()
+  const valueKey = formatDateKey(value)
+  const atMin = lectionaryDays.length > 0 && valueKey === lectionaryDays[0]!.date
+  const atMax =
+    lectionaryDays.length > 0 && valueKey === lectionaryDays[lectionaryDays.length - 1]!.date
 
-  const shift = (days: number) => {
-    onChange(clampToLectionaryRange(addCalendarDays(value, days)))
+  const shift = (delta: -1 | 1) => {
+    onChange(shiftLectionaryDate(value, delta))
   }
 
   const saturday = upcomingWeekday(deviceToday, 6)
@@ -63,7 +68,7 @@ export function PreparationDateBar({ value, onChange }: PreparationDateBarProps)
         color="$color10"
         lineHeight={19}
       >
-        Choose the day you are preaching on. Readings and MP/EP rules follow that date.
+        Choose the day you are preaching on.
       </Text>
 
       <XStack

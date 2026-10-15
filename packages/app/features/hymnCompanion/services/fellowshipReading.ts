@@ -28,10 +28,11 @@ export async function fetchFellowshipDailyReading(
   return {
     date: formatDateKey(date),
     reference: scripture.reference,
-    title: `${chosen.label} · ${day.marketDay} (${day.dayLabel})`,
+    title: `${day.marketDay} · ${day.dayLabel}`,
     sourceLabel: 'ACPPB fellowship lectionary',
     passages: [chosen.reference],
     text: scripture.text,
+    verses: scripture.verses,
     translationName: scripture.translationName,
     textDelivery: scripture.delivery,
     fellowship: {

@@ -1,4 +1,9 @@
-import { formatDateKey, getLectionaryDateRange } from './fellowshipLectionary'
+import {
+  formatDateKey,
+  getFellowshipDay,
+  getLectionaryDateRange,
+  listAllLectionaryDays,
+} from './fellowshipLectionary'
 
 export function startOfLocalDay(date: Date): Date {
   const d = new Date(date)
@@ -25,6 +30,21 @@ export function getLectionaryBounds(): { min: Date; max: Date } | null {
   const range = getLectionaryDateRange()
   if (!range) return null
   return { min: parseDateKey(range.start), max: parseDateKey(range.end) }
+}
+
+/** Best date to open Readings: today if in lectionary, else nearest scheduled day. */
+export function getDefaultPreparationDate(): Date {
+  const today = startOfLocalDay(new Date())
+  if (getFellowshipDay(today)) return today
+
+  const days = listAllLectionaryDays()
+  if (days.length === 0) return clampToLectionaryRange(today)
+
+  const todayKey = formatDateKey(today)
+  const upcoming = days.find((d) => d.date >= todayKey)
+  if (upcoming) return parseDateKey(upcoming.date)
+
+  return parseDateKey(days[days.length - 1]!.date)
 }
 
 export function clampToLectionaryRange(date: Date): Date {

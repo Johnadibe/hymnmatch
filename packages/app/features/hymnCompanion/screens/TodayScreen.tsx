@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'expo-router'
 import { Button, PressPresets, Text, XStack } from '@my/ui'
-import { ChevronRight, RefreshCw, Sparkles } from '@tamagui/lucide-icons'
+import { RefreshCw } from '@tamagui/lucide-icons'
+import { FindMatchingHymnsButton } from '../components/FindMatchingHymnsButton'
 import { AppScreen } from '../components/AppScreen'
 import { ErrorPanel } from '../components/ErrorPanel'
 import { HymnInput } from '../components/HymnInput'
@@ -11,16 +12,21 @@ import {
   ReadingSlotPicker,
   type ReadingPickerValue,
 } from '../components/ReadingSlotPicker'
+import { ScripturePassageText } from '../components/ScripturePassageText'
 import { SurfaceCard } from '../components/SurfaceCard'
-import { getFellowshipDay } from '../data/lectionary/fellowshipLectionary'
 import {
-  clampToLectionaryRange,
+  formatDateKey,
+  getFellowshipDay,
+  getLectionaryDateRange,
+  resolveFellowshipReading,
+} from '../data/lectionary/fellowshipLectionary'
+import {
   formatPreparationShort,
+  getDefaultPreparationDate,
   isSameCalendarDay,
   startOfLocalDay,
 } from '../data/lectionary/preparationDate'
 import type { FellowshipLectionaryDay } from '../data/lectionary/types'
-import { fetchFellowshipDailyReading } from '../services/fellowshipReading'
 import { fetchPassageText } from '../services/fetchPassage'
 import { explainLoadPassageError } from '../utils/friendlyErrors'
 import type { DailyReading } from '../types'
@@ -29,17 +35,18 @@ const defaultPicker: ReadingPickerValue = { slot: 'bsg', index: 0 }
 
 export function TodayScreen() {
   const router = useRouter()
-  const [selectedDate, setSelectedDate] = useState(() =>
-    clampToLectionaryRange(startOfLocalDay(new Date()))
+  const [selectedDate, setSelectedDate] = useState(getDefaultPreparationDate)
+  const [scheduleDay, setScheduleDay] = useState<FellowshipLectionaryDay | null>(() =>
+    getFellowshipDay(getDefaultPreparationDate()) ?? null
   )
-  const [scheduleDay, setScheduleDay] = useState<FellowshipLectionaryDay | null>(null)
   const [reading, setReading] = useState<DailyReading | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [textLoading, setTextLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [themeHint, setThemeHint] = useState('')
   const [customReference, setCustomReference] = useState('')
   const [finding, setFinding] = useState(false)
   const [picker, setPicker] = useState<ReadingPickerValue>(defaultPicker)
+  const loadSeq = useRef(0)
 
   const loadReading = useCallback(
     async (options?: {
@@ -48,16 +55,19 @@ export function TodayScreen() {
       preferNetwork?: boolean
       forDate?: Date
     }) => {
-      setLoading(true)
-      setError(null)
-      const targetDate = clampToLectionaryRange(options?.forDate ?? selectedDate)
-      try {
-        if (options?.customRef?.trim()) {
+      const seq = ++loadSeq.current
+      const targetDate = options?.forDate ?? selectedDate
+
+      if (options?.customRef?.trim()) {
+        setTextLoading(true)
+        setError(null)
+        setScheduleDay(null)
+        try {
           const scripture = await fetchPassageText(options.customRef.trim(), {
             preferNetwork: options.preferNetwork,
           })
-          const dateKey = `${targetDate.getFullYear()}-${String(targetDate.getMonth() + 1).padStart(2, '0')}-${String(targetDate.getDate()).padStart(2, '0')}`
-          setScheduleDay(null)
+          if (seq !== loadSeq.current) return
+          const dateKey = formatDateKey(targetDate)
           setReading({
             date: dateKey,
             reference: scripture.reference,
@@ -65,29 +75,78 @@ export function TodayScreen() {
             sourceLabel: 'Custom reference',
             passages: [options.customRef.trim()],
             text: scripture.text,
+            verses: scripture.verses,
             translationName: scripture.translationName,
             textDelivery: scripture.delivery,
           })
-        } else {
-          const day = getFellowshipDay(targetDate)
-          setScheduleDay(day ?? null)
-          const selection = options?.pickerValue ?? picker
-          setReading(
-            await fetchFellowshipDailyReading(
-              targetDate,
-              {
-                slot: selection.slot,
-                index: selection.index,
-              },
-              { preferNetwork: options.preferNetwork }
-            )
-          )
+        } catch (e) {
+          if (seq !== loadSeq.current) return
+          setError(e instanceof Error ? e.message : 'Failed to load reading')
+          setReading(null)
+        } finally {
+          if (seq === loadSeq.current) setTextLoading(false)
         }
-      } catch (e) {
-        setError(e instanceof Error ? e.message : 'Failed to load reading')
+        return
+      }
+
+      const day = getFellowshipDay(targetDate)
+      setScheduleDay(day ?? null)
+      setError(null)
+
+      if (!day) {
+        const range = getLectionaryDateRange()
+        const hint = range
+          ? `Readings are available ${range.start} through ${range.end}. Pick a date from the calendar.`
+          : 'No lectionary loaded.'
+        setError(`No fellowship reading for this date. ${hint}`)
         setReading(null)
+        setTextLoading(false)
+        return
+      }
+
+      const selection = options?.pickerValue ?? picker
+      const chosen = resolveFellowshipReading(day, targetDate, {
+        slot: selection.slot,
+        index: selection.index,
+      })
+
+      const skeleton: DailyReading = {
+        date: formatDateKey(targetDate),
+        reference: chosen.reference,
+        title: `${day.marketDay} · ${day.dayLabel}`,
+        sourceLabel: 'ACPPB fellowship lectionary',
+        passages: [chosen.reference],
+        text: '',
+        fellowship: {
+          marketDay: day.marketDay,
+          dayLabel: day.dayLabel,
+          slot: chosen.slot,
+          bsg: day.bsg,
+          mp: day.mp,
+          ep: day.ep,
+        },
+      }
+      setReading(skeleton)
+      setTextLoading(true)
+
+      try {
+        const scripture = await fetchPassageText(chosen.reference, {
+          preferNetwork: options?.preferNetwork,
+        })
+        if (seq !== loadSeq.current) return
+        setReading({
+          ...skeleton,
+          reference: scripture.reference,
+          text: scripture.text,
+          verses: scripture.verses,
+          translationName: scripture.translationName,
+          textDelivery: scripture.delivery,
+        })
+      } catch (e) {
+        if (seq !== loadSeq.current) return
+        setError(e instanceof Error ? e.message : 'Failed to load passage text')
       } finally {
-        setLoading(false)
+        if (seq === loadSeq.current) setTextLoading(false)
       }
     },
     [picker, selectedDate]
@@ -95,15 +154,14 @@ export function TodayScreen() {
 
   useEffect(() => {
     void loadReading({ forDate: selectedDate, pickerValue: defaultPicker })
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- initial load only
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- mount
   }, [])
 
   const onPreparationDateChange = (date: Date) => {
-    const clamped = clampToLectionaryRange(date)
-    setSelectedDate(clamped)
+    setSelectedDate(date)
     setPicker(defaultPicker)
     setCustomReference('')
-    void loadReading({ forDate: clamped, pickerValue: defaultPicker })
+    void loadReading({ forDate: date, pickerValue: defaultPicker })
   }
 
   const onPickerChange = (value: ReadingPickerValue) => {
@@ -112,7 +170,7 @@ export function TodayScreen() {
   }
 
   const onFindHymns = async () => {
-    if (!reading) return
+    if (!reading?.text?.trim()) return
     setFinding(true)
     try {
       const { setActiveReading } = await import('../storage/sessionReading')
@@ -136,7 +194,7 @@ export function TodayScreen() {
   return (
     <AppScreen
       title={screenTitle}
-      subtitle="Pick the service date, then BSG daily. On Mon, Tue, Thu and Sat you may choose MP or EP."
+      subtitle="Choose the service date and the reading you will preach from."
       headerExtra={
         <Button
           size="$3"
@@ -149,7 +207,7 @@ export function TodayScreen() {
           icon={RefreshCw}
           pressStyle={PressPresets.filter.pressStyle}
           animation={PressPresets.filter.animation}
-          disabled={loading}
+          disabled={textLoading}
           onPress={() =>
             void loadReading({
               forDate: selectedDate,
@@ -195,9 +253,7 @@ export function TodayScreen() {
       ) : null}
 
       <SurfaceCard accent="blue">
-        {loading ? (
-          <LoadingBlock minimal />
-        ) : reading ? (
+        {reading ? (
           <>
             <Text
               fontSize={12}
@@ -225,15 +281,24 @@ export function TodayScreen() {
             >
               {reading.title}
             </Text>
-            <Text
-              fontSize={15}
-              lineHeight={24}
-            >
-              {reading.text}
-            </Text>
+            {textLoading ? (
+              <LoadingBlock minimal />
+            ) : reading.text ? (
+              <ScripturePassageText
+                text={reading.text}
+                verses={reading.verses}
+              />
+            ) : (
+              <Text
+                color="$color10"
+                fontSize={14}
+              >
+                Passage text could not be loaded. Tap Refresh or check your connection.
+              </Text>
+            )}
           </>
         ) : !err ? (
-          <Text color="$color10">No reading loaded for this date.</Text>
+          <Text color="$color10">Select a date with a fellowship reading.</Text>
         ) : null}
       </SurfaceCard>
 
@@ -275,23 +340,18 @@ export function TodayScreen() {
           <Button
             {...PressPresets.secondary}
             onPress={() => void loadReading({ customRef: customReference, forDate: selectedDate })}
-            disabled={!customReference.trim() || loading}
+            disabled={!customReference.trim() || textLoading}
           >
             Load
           </Button>
         </XStack>
       </SurfaceCard>
 
-      <Button
-        size="$5"
-        {...PressPresets.primary}
-        disabled={!reading || loading || finding}
+      <FindMatchingHymnsButton
+        disabled={!reading?.text?.trim() || textLoading}
+        loading={finding}
         onPress={() => void onFindHymns()}
-        icon={Sparkles}
-        iconAfter={ChevronRight}
-      >
-        {finding ? 'Opening…' : 'Find matching hymns'}
-      </Button>
+      />
     </AppScreen>
   )
 }

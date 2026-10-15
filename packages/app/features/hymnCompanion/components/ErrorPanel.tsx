@@ -61,9 +61,10 @@ export function ErrorPanel({
       ) : null}
       {onRetry ? (
         <Button
-          {...PressPresets.secondary}
+          {...PressPresets.primary}
           onPress={onRetry}
-          alignSelf="flex-start"
+          alignSelf="stretch"
+          marginTop="$1"
         >
           {retryLabel}
         </Button>

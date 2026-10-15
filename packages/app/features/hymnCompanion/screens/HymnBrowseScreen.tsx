@@ -1,55 +1,33 @@
-import { useMemo, useState } from 'react'
+import { memo, useCallback, useMemo, useState } from 'react'
+import { FlatList, Pressable, type ListRenderItemInfo } from 'react-native'
 import { useRouter } from 'expo-router'
-import { Button, PressPresets, Text, YStack } from '@my/ui'
-import { HymnInput } from '../components/HymnInput'
+import { Text, XStack, YStack } from '@my/ui'
 import { ChevronRight } from '@tamagui/lucide-icons'
 import { AppScreen } from '../components/AppScreen'
+import { HymnLibrarySearchField } from '../components/HymnLibrarySearchField'
 import { SurfaceCard } from '../components/SurfaceCard'
-import { hymnCatalog } from '../data/hymnCatalog'
+import { filterHymnCatalog } from '../data/hymnCatalog'
+import type { HymnCatalogEntry } from '../types'
 
-export function HymnBrowseScreen() {
-  const router = useRouter()
-  const [query, setQuery] = useState('')
+type HymnRowProps = {
+  hymn: HymnCatalogEntry
+  onPress: (id: string) => void
+}
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase()
-    if (!q) return hymnCatalog
-    return hymnCatalog.filter(
-      (h) =>
-        h.title.toLowerCase().includes(q) ||
-        h.themes.some((t) => t.toLowerCase().includes(q)) ||
-        h.collectionLabel.toLowerCase().includes(q) ||
-        String(h.number).includes(q)
-    )
-  }, [query])
-
+const HymnRow = memo(function HymnRow({ hymn, onPress }: HymnRowProps) {
   return (
-    <AppScreen
-      title="Hymn library"
-      subtitle="Browse hymns in the app catalogue. Igbo hymnbook entries will appear here once uploaded."
+    <Pressable
+      onPress={() => onPress(hymn.id)}
+      accessibilityRole="button"
+      accessibilityLabel={`Abu ${hymn.number}, ${hymn.title}`}
     >
-      <HymnInput
-        size="$4"
-        placeholder="Search title, theme, or number…"
-        value={query}
-        onChangeText={setQuery}
-      />
-      <Text
-        fontSize={13}
-        color="$color10"
-      >
-        {filtered.length} hymn{filtered.length === 1 ? '' : 's'}
-      </Text>
-      {filtered.map((hymn) => (
-        <SurfaceCard
-          key={hymn.id}
-          accent="blue"
-        >
+      <SurfaceCard accent="blue">
+        <YStack gap="$2">
           <Text
             fontSize={12}
             color="$color10"
           >
-            {hymn.collectionLabel} · #{hymn.number}
+            Abu {hymn.number}
           </Text>
           <Text
             fontSize={18}
@@ -58,25 +36,139 @@ export function HymnBrowseScreen() {
             {hymn.title}
           </Text>
           <Text
+            fontSize={14}
+            color="$color10"
+            fontStyle="italic"
+          >
+            {hymn.titleEnglish}
+          </Text>
+          <Text
             fontSize={13}
             color="$color11"
           >
             {hymn.themes.slice(0, 4).join(' · ')}
           </Text>
-          <Button
-            {...PressPresets.primary}
-            iconAfter={ChevronRight}
-            onPress={() =>
-              router.push({
-                pathname: '/hymn/[id]',
-                params: { id: hymn.id },
-              })
-            }
+          <XStack
+            alignItems="center"
+            gap="$1"
           >
-            View details
-          </Button>
-        </SurfaceCard>
-      ))}
+            <Text
+              fontSize={13}
+              fontWeight="600"
+              color="$blue10"
+            >
+              View details
+            </Text>
+            <ChevronRight
+              size={16}
+              color="$blue10"
+            />
+          </XStack>
+        </YStack>
+      </SurfaceCard>
+    </Pressable>
+  )
+})
+
+export function HymnBrowseScreen() {
+  const router = useRouter()
+  const [query, setQuery] = useState('')
+
+  const filtered = useMemo(() => filterHymnCatalog(query), [query])
+
+  const onOpenHymn = useCallback(
+    (id: string) => {
+      router.push({
+        pathname: '/hymn/[id]',
+        params: { id },
+      })
+    },
+    [router]
+  )
+
+  const renderItem = useCallback(
+    ({ item }: ListRenderItemInfo<HymnCatalogEntry>) => (
+      <HymnRow
+        hymn={item}
+        onPress={onOpenHymn}
+      />
+    ),
+    [onOpenHymn]
+  )
+
+  const listHeader = useMemo(
+    () => (
+      <Text
+        fontSize={13}
+        color="$color10"
+        marginBottom="$2"
+      >
+        {filtered.length} hymn{filtered.length === 1 ? '' : 's'}
+        {query.trim() ? ` matching “${query.trim()}”` : ''}
+      </Text>
+    ),
+    [filtered.length, query]
+  )
+
+  const listEmpty = useMemo(
+    () => (
+      <YStack
+        padding="$6"
+        alignItems="center"
+        gap="$2"
+      >
+        <Text
+          fontSize={16}
+          fontWeight="700"
+          textAlign="center"
+        >
+          No hymns found
+        </Text>
+        <Text
+          fontSize={14}
+          color="$color10"
+          textAlign="center"
+          lineHeight={20}
+        >
+          Try an Abu number (e.g. 8), an English line (e.g. immortal), or Igbo without tone marks (e.g.
+          Chineke).
+        </Text>
+      </YStack>
+    ),
+    []
+  )
+
+  return (
+    <AppScreen
+      scroll={false}
+      title="Hymn library"
+      subtitle="Search by Abu number, Igbo title, or English equivalent."
+      headerExtra={
+        <HymnLibrarySearchField
+          value={query}
+          onChangeText={setQuery}
+        />
+      }
+    >
+      <YStack flex={1}>
+        <FlatList
+          data={filtered}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          ListHeaderComponent={listHeader}
+          ListEmptyComponent={listEmpty}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{
+            paddingBottom: 24,
+            flexGrow: filtered.length === 0 ? 1 : undefined,
+          }}
+          ItemSeparatorComponent={() => (
+            <YStack height={12} />
+          )}
+        />
+      </YStack>
     </AppScreen>
   )
 }

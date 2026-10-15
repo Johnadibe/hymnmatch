@@ -4,6 +4,8 @@ import {
   setCachedPassage,
   type CachedPassageRecord,
 } from '../storage/passageTextCache'
+import type { ScriptureVerse } from '../types'
+import { formatPassageFromApi } from '../utils/formatPassageVerses'
 
 /** World English Bible — public domain; suitable for app distribution without licensing fees. */
 export const PASSAGE_TRANSLATION_ID = 'web' as const
@@ -13,6 +15,7 @@ export type PassageTextDelivery = 'network' | 'cache' | 'cache-offline'
 
 export type PassageTextResult = {
   text: string
+  verses: ScriptureVerse[]
   translationName: string
   reference: string
   delivery: PassageTextDelivery
@@ -43,6 +46,7 @@ function cacheKeyFor(reference: string): string {
 function fromCacheRecord(record: CachedPassageRecord, delivery: PassageTextDelivery): PassageTextResult {
   return {
     text: record.text,
+    verses: record.verses ?? [],
     translationName: record.translationName,
     reference: record.reference,
     delivery,
@@ -59,8 +63,10 @@ async function fetchFromNetwork(reference: string): Promise<PassageTextResult> {
       throw new Error(`Could not load Scripture (${response.status}). Check your connection.`)
     }
     const data = (await response.json()) as BibleApiResponse
+    const formatted = formatPassageFromApi(data.verses, data.text ?? '')
     const result: PassageTextResult = {
-      text: data.text?.trim() ?? '',
+      text: formatted.text,
+      verses: formatted.verses,
       translationName: data.translation_name ?? PASSAGE_TRANSLATION_LABEL,
       reference: data.reference ?? reference,
       delivery: 'network',
@@ -82,6 +88,7 @@ async function fetchFromNetwork(reference: string): Promise<PassageTextResult> {
 async function persistAndReturn(key: string, result: PassageTextResult): Promise<PassageTextResult> {
   await setCachedPassage(key, {
     text: result.text,
+    verses: result.verses,
     translationName: result.translationName,
     reference: result.reference,
   })
@@ -94,6 +101,7 @@ function revalidateInBackground(reference: string, key: string): void {
       const fresh = await fetchFromNetwork(reference)
       await setCachedPassage(key, {
         text: fresh.text,
+        verses: fresh.verses,
         translationName: fresh.translationName,
         reference: fresh.reference,
       })

@@ -19,10 +19,10 @@ export function defaultSlotForDate(date: Date): ReadingSlot {
 export function slotLabel(slot: ReadingSlot): string {
   switch (slot) {
     case 'bsg':
-      return 'BSG (Daily reading)'
+      return 'Daily reading'
     case 'mp':
-      return 'Morning Prayer (MP)'
+      return 'Morning Prayer'
     case 'ep':
-      return 'Evening Prayer (EP)'
+      return 'Evening Prayer'
   }
 }

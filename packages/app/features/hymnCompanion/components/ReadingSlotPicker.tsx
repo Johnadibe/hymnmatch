@@ -1,6 +1,10 @@
 import { Button, PressPresets, Text, XStack, YStack } from '@my/ui'
 import type { FellowshipLectionaryDay, ReadingSlot } from '../data/lectionary/types'
-import { isBsgRequiredDay, isMpEpChoiceDay } from '../data/lectionary/readingRules'
+import {
+  isBsgRequiredDay,
+  isMpEpChoiceDay,
+  slotLabel,
+} from '../data/lectionary/readingRules'
 import { listSelectableReferences } from '../data/lectionary/fellowshipLectionary'
 
 export type ReadingPickerValue = {
@@ -39,11 +43,18 @@ function SlotChip({
   )
 }
 
+function linesForSlot(day: FellowshipLectionaryDay, slot: ReadingSlot): string[] {
+  if (slot === 'bsg') return [day.bsg]
+  if (slot === 'mp') return day.mp
+  return day.ep
+}
+
 export function ReadingSlotPicker({ date, day, value, onChange }: ReadingSlotPickerProps) {
   const bsgRequired = isBsgRequiredDay(date)
   const choiceDay = isMpEpChoiceDay(date)
-
   const refs = listSelectableReferences(day, value.slot)
+  const activeLines = linesForSlot(day, value.slot)
+  const activeRef = activeLines[value.index] ?? activeLines[0]
 
   return (
     <YStack gap="$3">
@@ -53,36 +64,38 @@ export function ReadingSlotPicker({ date, day, value, onChange }: ReadingSlotPic
         lineHeight={19}
       >
         {bsgRequired
-          ? 'Wednesday, Friday & Sunday: BSG is the required reading for the fellowship.'
+          ? 'This day uses the daily fellowship reading below.'
           : choiceDay
-            ? 'Monday, Tuesday, Thursday & Saturday: you may preach from BSG, Morning Prayer (MP), or Evening Prayer (EP).'
-            : 'Select which scheduled reading you are preparing from.'}
+            ? 'Choose which column from the schedule you are preaching from.'
+            : 'Select the reading you are preparing from.'}
       </Text>
 
-      <XStack
-        flexWrap="wrap"
-        gap="$2"
-      >
-        <SlotChip
-          active={value.slot === 'bsg'}
-          label="BSG"
-          onPress={() => onChange({ slot: 'bsg', index: 0 })}
-        />
-        {choiceDay && day.mp.length > 0 ? (
+      {choiceDay ? (
+        <XStack
+          flexWrap="wrap"
+          gap="$2"
+        >
           <SlotChip
-            active={value.slot === 'mp'}
-            label="Morning Prayer"
-            onPress={() => onChange({ slot: 'mp', index: 0 })}
+            active={value.slot === 'bsg'}
+            label="Daily"
+            onPress={() => onChange({ slot: 'bsg', index: 0 })}
           />
-        ) : null}
-        {choiceDay && day.ep.length > 0 ? (
-          <SlotChip
-            active={value.slot === 'ep'}
-            label="Evening Prayer"
-            onPress={() => onChange({ slot: 'ep', index: 0 })}
-          />
-        ) : null}
-      </XStack>
+          {day.mp.length > 0 ? (
+            <SlotChip
+              active={value.slot === 'mp'}
+              label="Morning"
+              onPress={() => onChange({ slot: 'mp', index: 0 })}
+            />
+          ) : null}
+          {day.ep.length > 0 ? (
+            <SlotChip
+              active={value.slot === 'ep'}
+              label="Evening"
+              onPress={() => onChange({ slot: 'ep', index: 0 })}
+            />
+          ) : null}
+        </XStack>
+      ) : null}
 
       {value.slot !== 'bsg' && refs.length > 1 ? (
         <YStack gap="$2">
@@ -90,7 +103,7 @@ export function ReadingSlotPicker({ date, day, value, onChange }: ReadingSlotPic
             fontWeight="600"
             fontSize={14}
           >
-            Choose passage
+            Which line?
           </Text>
           {refs.map((r) => (
             <Button
@@ -110,81 +123,41 @@ export function ReadingSlotPicker({ date, day, value, onChange }: ReadingSlotPic
         </YStack>
       ) : null}
 
-      <SurfaceMeta
-        bsg={day.bsg}
-        mp={day.mp}
-        ep={day.ep}
-        highlight={value.slot}
-      />
-    </YStack>
-  )
-}
-
-function SurfaceMeta({
-  bsg,
-  mp,
-  ep,
-  highlight,
-}: {
-  bsg: string
-  mp: string[]
-  ep: string[]
-  highlight: ReadingSlot
-}) {
-  return (
-    <YStack
-      gap="$2"
-      padding="$3"
-      borderRadius="$4"
-      backgroundColor="$background"
-    >
-      <MetaLine
-        label="BSG"
-        lines={[bsg]}
-        active={highlight === 'bsg'}
-      />
-      <MetaLine
-        label="MP"
-        lines={mp}
-        active={highlight === 'mp'}
-      />
-      <MetaLine
-        label="EP"
-        lines={ep}
-        active={highlight === 'ep'}
-      />
-    </YStack>
-  )
-}
-
-function MetaLine({
-  label,
-  lines,
-  active,
-}: {
-  label: string
-  lines: string[]
-  active: boolean
-}) {
-  if (lines.length === 0) return null
-  return (
-    <YStack gap="$1">
-      <Text
-        fontSize={12}
-        fontWeight="700"
-        color={active ? '$blue11' : '$color10'}
+      <YStack
+        gap="$1"
+        padding="$3"
+        borderRadius="$4"
+        backgroundColor="$background"
+        borderWidth={1}
+        borderColor="$blue6"
       >
-        {label}
-      </Text>
-      {lines.map((line) => (
         <Text
-          key={line}
-          fontSize={13}
-          color="$color11"
+          fontSize={12}
+          fontWeight="700"
+          color="$blue11"
+          textTransform="uppercase"
+          letterSpacing={0.6}
         >
-          {line}
+          {slotLabel(value.slot)}
         </Text>
-      ))}
+        <Text
+          fontSize={14}
+          color="$color11"
+          fontWeight="600"
+        >
+          {activeRef}
+        </Text>
+        {choiceDay && value.slot === 'bsg' && (day.mp.length > 0 || day.ep.length > 0) ? (
+          <Text
+            fontSize={12}
+            color="$color10"
+            marginTop="$2"
+          >
+            Morning and evening texts are on the schedule too; switch tabs above if you are
+            preaching from those instead.
+          </Text>
+        ) : null}
+      </YStack>
     </YStack>
   )
 }

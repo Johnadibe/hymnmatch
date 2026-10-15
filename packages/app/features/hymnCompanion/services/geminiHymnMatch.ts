@@ -1,7 +1,15 @@
+import { HYMN_SUGGESTION_COUNT } from '../constants'
 import { catalogForPrompt, hymnCatalog, getHymnById } from '../data/hymnCatalog'
 import type { DailyReading, HymnRecommendation, MatchResult } from '../types'
 
-const DEFAULT_MODEL = 'gemini-2.0-flash'
+/** Default if EXPO_PUBLIC_GEMINI_MODEL is unset. See https://ai.google.dev/gemini-api/docs/models */
+const DEFAULT_MODEL = 'gemini-3.8-flash'
+
+const MODEL_FALLBACKS = [
+  'gemini-3.8-flash',
+  'gemini-2.5-flash',
+  'gemini-2.5-flash-lite',
+] as const
 
 type GeminiResponse = {
   candidates?: Array<{
@@ -9,13 +17,34 @@ type GeminiResponse = {
       parts?: Array<{ text?: string }>
     }
   }>
-  error?: { message?: string }
+  error?: { message?: string; status?: string }
+}
+
+export type MatchResultMeta = MatchResult & {
+  /** Set when live matching failed and catalogue fallback was used. */
+  matchSource?: 'gemini' | 'catalogue-fallback'
 }
 
 function getGeminiConfig(): { apiKey: string; model: string } {
   const apiKey = process.env.EXPO_PUBLIC_GEMINI_API_KEY ?? ''
-  const model = process.env.EXPO_PUBLIC_GEMINI_MODEL ?? DEFAULT_MODEL
+  const model = process.env.EXPO_PUBLIC_GEMINI_MODEL?.trim() || DEFAULT_MODEL
   return { apiKey, model }
+}
+
+function modelsToTry(preferred: string): string[] {
+  const ordered = [preferred, ...MODEL_FALLBACKS]
+  return [...new Set(ordered.filter(Boolean))]
+}
+
+function isModelOrAvailabilityError(message: string): boolean {
+  const lower = message.toLowerCase()
+  return (
+    lower.includes('no longer available') ||
+    lower.includes('not found') ||
+    lower.includes('models/') ||
+    lower.includes('invalid model') ||
+    lower.includes('404')
+  )
 }
 
 function buildPrompt(reading: DailyReading, sermonThemeHint?: string): string {
@@ -26,8 +55,9 @@ function buildPrompt(reading: DailyReading, sermonThemeHint?: string): string {
   return `You are assisting a Christian preacher preparing worship. Your job is to suggest hymns that reinforce the SERMON MESSAGE, not merely match words in the Bible text.
 
 Rules:
-- Choose ONLY hymns from the catalogue below (use exact "id" values).
-- Recommend exactly TWO hymns as the primary suggestions.
+- Choose ONLY hymns from the catalogue below (use exact "id" values such as abu-1).
+- Match using the English titles and themes; the congregation sings the Igbo Abu text in worship.
+- Recommend exactly ${HYMN_SUGGESTION_COUNT} hymns as the primary suggestions (all different catalogue ids).
 - Never invent hymn titles, numbers, or lyrics.
 - Explain WHY each hymn fits the message (themes, spiritual fit), not keyword matching.
 - Output valid JSON only.
@@ -47,14 +77,14 @@ Respond with JSON in this shape:
   "sermonThemes": ["theme1", "theme2"],
   "recommendations": [
     {
-      "hymnId": "am-4",
+      "hymnId": "abu-4",
       "fitStrength": "strong",
       "reason": "One or two sentences.",
       "matchedThemes": ["consecration", "surrender"]
     }
   ]
 }
-Include exactly 2 items in recommendations. fitStrength must be "strong", "good", or "moderate".`
+Include exactly ${HYMN_SUGGESTION_COUNT} items in recommendations. fitStrength must be "strong", "good", or "moderate".`
 }
 
 function parseMatchJson(raw: string): MatchResult {
@@ -64,7 +94,7 @@ function parseMatchJson(raw: string): MatchResult {
     .trim()
   const parsed = JSON.parse(cleaned) as MatchResult
   if (!parsed.recommendations?.length) {
-    throw new Error('Gemini returned no hymn recommendations.')
+    throw new Error('The suggestion service returned no hymn recommendations.')
   }
   return parsed
 }
@@ -82,16 +112,16 @@ function validateRecommendations(result: MatchResult): MatchResult {
     })
   }
   if (recommendations.length === 0) {
-    throw new Error('No valid hymn IDs in the AI response.')
+    throw new Error('No valid hymn IDs in the response.')
   }
   return {
     sermonThemes: result.sermonThemes ?? [],
-    recommendations: recommendations.slice(0, 2),
+    recommendations: recommendations.slice(0, HYMN_SUGGESTION_COUNT),
   }
 }
 
-/** Fallback when offline or no API key — score by theme overlap in catalogue metadata. */
-export function localFallbackMatch(reading: DailyReading): MatchResult {
+/** Fallback when offline, no API key, or all models fail — theme overlap in catalogue metadata. */
+export function localFallbackMatch(reading: DailyReading): MatchResultMeta {
   const haystack = `${reading.title} ${reading.text} ${reading.reference}`.toLowerCase()
   const scored = hymnCatalog
     .map((hymn) => {
@@ -107,51 +137,89 @@ export function localFallbackMatch(reading: DailyReading): MatchResult {
     })
     .sort((a, b) => b.score - a.score)
 
-  const top = scored.slice(0, 2)
+  const top = scored.slice(0, HYMN_SUGGESTION_COUNT)
   return {
-    sermonThemes: ['Message-based match (offline fallback)'],
+    sermonThemes: ['Themes from your passage (catalogue match)'],
     recommendations: top.map(({ hymn }, index) => ({
       hymnId: hymn.id,
-      fitStrength: index === 0 ? 'strong' : 'good',
-      reason: `Catalogue themes (${hymn.themes.slice(0, 3).join(', ')}) may support this passage. Confirm in prayer and with your hymnbook.`,
+      fitStrength: index === 0 ? 'strong' : index === 1 ? 'good' : 'moderate',
+      reason: `This hymn’s catalogue themes (${hymn.themes.slice(0, 3).join(', ')}) may support your message. Confirm with your hymnbook and in prayer.`,
       matchedThemes: hymn.themes.slice(0, 3),
     })),
+    matchSource: 'catalogue-fallback',
   }
 }
 
-export async function matchHymnsWithGemini(
+async function requestGeminiMatch(
+  apiKey: string,
+  model: string,
   reading: DailyReading,
-  options?: { sermonThemeHint?: string }
+  sermonThemeHint?: string
 ): Promise<MatchResult> {
-  const { apiKey, model } = getGeminiConfig()
-  if (!apiKey) {
-    return localFallbackMatch(reading)
-  }
-
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`
+
+  const generationConfig: Record<string, unknown> = {
+    temperature: 0.4,
+    responseMimeType: 'application/json',
+  }
+  if (model.includes('2.5')) {
+    generationConfig.thinkingConfig = { thinkingBudget: 0 }
+  }
 
   const response = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      contents: [{ parts: [{ text: buildPrompt(reading, options?.sermonThemeHint) }] }],
-      generationConfig: {
-        temperature: 0.4,
-        responseMimeType: 'application/json',
-      },
+      contents: [{ parts: [{ text: buildPrompt(reading, sermonThemeHint) }] }],
+      generationConfig,
     }),
   })
 
   const data = (await response.json()) as GeminiResponse
   if (!response.ok) {
-    const message = data.error?.message ?? `Gemini request failed (${response.status})`
+    const message = data.error?.message ?? `Suggestion request failed (${response.status})`
     throw new Error(message)
   }
 
   const text = data.candidates?.[0]?.content?.parts?.[0]?.text
   if (!text) {
-    throw new Error('Empty response from Gemini.')
+    throw new Error('Empty response from suggestion service.')
   }
 
   return validateRecommendations(parseMatchJson(text))
+}
+
+export async function matchHymnsWithGemini(
+  reading: DailyReading,
+  options?: { sermonThemeHint?: string }
+): Promise<MatchResultMeta> {
+  const { apiKey, model } = getGeminiConfig()
+  if (!apiKey) {
+    return localFallbackMatch(reading)
+  }
+
+  let lastError: Error | null = null
+  for (const candidate of modelsToTry(model)) {
+    try {
+      const result = await requestGeminiMatch(
+        apiKey,
+        candidate,
+        reading,
+        options?.sermonThemeHint
+      )
+      return { ...result, matchSource: 'gemini' }
+    } catch (e) {
+      const err = e instanceof Error ? e : new Error(String(e))
+      lastError = err
+      if (!isModelOrAvailabilityError(err.message)) {
+        throw err
+      }
+    }
+  }
+
+  if (lastError && isModelOrAvailabilityError(lastError.message)) {
+    return localFallbackMatch(reading)
+  }
+
+  throw lastError ?? new Error('Could not suggest hymns.')
 }

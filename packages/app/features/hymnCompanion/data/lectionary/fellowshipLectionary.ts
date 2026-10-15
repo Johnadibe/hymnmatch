@@ -32,6 +32,25 @@ export function listAllLectionaryDays(): FellowshipLectionaryDay[] {
   return [...days].sort((a, b) => a.date.localeCompare(b.date))
 }
 
+export function shiftLectionaryDate(date: Date, delta: -1 | 1): Date {
+  const sorted = listAllLectionaryDays()
+  if (sorted.length === 0) return date
+  const key = formatDateKey(date)
+  const index = sorted.findIndex((d) => d.date === key)
+  if (index === -1) {
+    const next = sorted.find((d) => d.date > key)
+    if (next) return parseDateKeyFromKey(next.date)
+    return parseDateKeyFromKey(sorted[sorted.length - 1]!.date)
+  }
+  const nextIndex = Math.max(0, Math.min(sorted.length - 1, index + delta))
+  return parseDateKeyFromKey(sorted[nextIndex]!.date)
+}
+
+function parseDateKeyFromKey(key: string): Date {
+  const [y, m, day] = key.split('-').map(Number)
+  return new Date(y!, m! - 1, day!, 0, 0, 0, 0)
+}
+
 export type ReadingSelection = {
   slot: ReadingSlot
   /** Index within mp or ep array when slot is mp/ep */

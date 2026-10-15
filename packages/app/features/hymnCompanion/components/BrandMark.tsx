@@ -43,10 +43,6 @@ export function BrandMark({ size = 'header' }: BrandMarkProps) {
       <YStack
         alignItems="center"
         gap="$4"
-        animation="100ms"
-        enterStyle={{ opacity: 0, y: -6 }}
-        opacity={1}
-        y={0}
       >
         <Image
           source={acppbLogo}
@@ -66,10 +62,6 @@ export function BrandMark({ size = 'header' }: BrandMarkProps) {
     <XStack
       alignItems="center"
       gap="$3"
-      animation="100ms"
-      enterStyle={{ opacity: 0, y: -6 }}
-      opacity={1}
-      y={0}
     >
       <Image
         source={acppbLogo}

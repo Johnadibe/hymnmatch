@@ -1,8 +1,10 @@
 import type { ReactNode } from 'react'
+import { View } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
-import { Button, PressPresets, Text, XStack, YStack } from '@my/ui'
-import { ArrowLeft } from '@tamagui/lucide-icons'
+import { Text, YStack } from '@my/ui'
+import { ChevronLeft } from '@tamagui/lucide-icons'
 import { BrandMark } from './BrandMark'
+import { HeaderIconButton } from './HeaderIconButton'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 type GradientHeaderProps = {
@@ -10,10 +12,19 @@ type GradientHeaderProps = {
   subtitle?: string
   children?: ReactNode
   onBack?: () => void
+  /** Icon actions on the right (stack screens only), e.g. refresh. */
+  headerRight?: ReactNode
 }
 
-export function GradientHeader({ title, subtitle, children, onBack }: GradientHeaderProps) {
+export function GradientHeader({
+  title,
+  subtitle,
+  children,
+  onBack,
+  headerRight,
+}: GradientHeaderProps) {
   const insets = useSafeAreaInsets()
+  const isStack = Boolean(onBack)
 
   return (
     <LinearGradient
@@ -21,66 +32,67 @@ export function GradientHeader({ title, subtitle, children, onBack }: GradientHe
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={{
-        paddingTop: insets.top + 12,
-        paddingBottom: 20,
+        paddingTop: insets.top + 8,
+        paddingBottom: isStack ? 16 : 20,
         paddingHorizontal: 20,
         borderBottomLeftRadius: 28,
         borderBottomRightRadius: 28,
       }}
     >
-      <YStack>
-        {onBack ? (
-          <XStack marginBottom="$2">
-            <Button
-              unstyled
-              {...PressPresets.listItem}
-              onPress={onBack}
-              icon={ArrowLeft}
-              color="white"
-            >
-              Back
-            </Button>
-          </XStack>
-        ) : null}
-        {onBack ? (
-          <Text
-            fontSize={13}
-            fontWeight="700"
-            color="rgba(255,255,255,0.85)"
-            letterSpacing={1.2}
-            textTransform="uppercase"
-            marginBottom="$4"
+      <YStack gap="$3">
+        {isStack ? (
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              minHeight: 40,
+            }}
           >
-            HymnMatch
-          </Text>
+            <HeaderIconButton
+              onPress={onBack!}
+              accessibilityLabel="Go back"
+            >
+              <ChevronLeft
+                size={24}
+                color="white"
+                strokeWidth={2.25}
+              />
+            </HeaderIconButton>
+            {headerRight ? (
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>{headerRight}</View>
+            ) : (
+              <View style={{ width: 40, height: 40 }} />
+            )}
+          </View>
         ) : (
-          <YStack marginBottom="$4">
+          <YStack marginBottom="$1">
             <BrandMark />
           </YStack>
         )}
-        <Text
-          fontSize={24}
-          fontWeight="800"
-          color="white"
-          marginTop="$1"
-          animation="100ms"
-          enterStyle={{ opacity: 0, x: -8 }}
-          opacity={1}
-          x={0}
-        >
-          {title}
-        </Text>
-        {subtitle ? (
+
+        <YStack gap="$2">
           <Text
-            fontSize={15}
-            lineHeight={22}
-            color="rgba(255,255,255,0.92)"
-            marginTop="$3"
+            fontSize={isStack ? 22 : 24}
+            fontWeight="800"
+            color="white"
+            lineHeight={isStack ? 28 : 30}
           >
-            {subtitle}
+            {title}
           </Text>
-        ) : null}
-        {children ? <YStack marginTop="$3">{children}</YStack> : null}
+          {subtitle ? (
+            <Text
+              fontSize={15}
+              lineHeight={22}
+              color="rgba(255,255,255,0.92)"
+              numberOfLines={isStack ? 3 : undefined}
+            >
+              {subtitle}
+            </Text>
+          ) : null}
+        </YStack>
+
+        {children ? <YStack marginTop="$1">{children}</YStack> : null}
       </YStack>
     </LinearGradient>
   )

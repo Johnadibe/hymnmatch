@@ -18,6 +18,8 @@ function TabIcon({
       justifyContent="center"
       gap={4}
       paddingTop={4}
+      width="100%"
+      minWidth={0}
     >
       <Icon
         size={22}
@@ -27,6 +29,9 @@ function TabIcon({
         fontSize={11}
         fontWeight={focused ? '700' : '500'}
         color={focused ? '$blue10' : '$color10'}
+        numberOfLines={1}
+        textAlign="center"
+        width="100%"
       >
         {label}
       </Text>
@@ -61,11 +66,11 @@ export default function TabLayout() {
       <Tabs.Screen
         name="today"
         options={{
-          title: 'Readings',
+          title: 'Word',
           tabBarIcon: ({ focused }) => (
             <TabIcon
               Icon={CalendarDays}
-              label="Readings"
+              label="Word"
               focused={focused}
             />
           ),

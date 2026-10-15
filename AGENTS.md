@@ -21,4 +21,4 @@ yarn test            # UI unit tests via apps/expo
 
 ## Env
 
-`apps/expo/.env`: `EXPO_PUBLIC_GEMINI_API_KEY`, optional `EXPO_PUBLIC_GEMINI_MODEL`.
+`apps/expo/.env`: `EXPO_PUBLIC_GEMINI_API_KEY`, optional `EXPO_PUBLIC_GEMINI_MODEL` (default `gemini-3.8-flash`).

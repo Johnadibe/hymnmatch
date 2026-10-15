@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import type { ScriptureVerse } from '../types'
 
-const CACHE_KEY = 'hymn_companion_passage_text_web_v1'
+const CACHE_KEY = 'hymn_companion_passage_text_web_v2'
 const MAX_ENTRIES = 400
 
 export type CachedPassageRecord = {
@@ -8,6 +9,7 @@ export type CachedPassageRecord = {
   translationName: string
   reference: string
   fetchedAt: string
+  verses?: ScriptureVerse[]
 }
 
 type CacheStore = Record<string, CachedPassageRecord>

@@ -1,25 +1,28 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { Button, PressPresets, Text, XStack, YStack } from '@my/ui'
-import { ThumbsDown, ThumbsUp } from '@tamagui/lucide-icons'
+import { BookOpen, RefreshCw, ThumbsDown, ThumbsUp } from '@tamagui/lucide-icons'
 import { AppScreen } from '../components/AppScreen'
+import { HeaderIconButton } from '../components/HeaderIconButton'
 import { ErrorPanel } from '../components/ErrorPanel'
+import { HymnSuggestionCard } from '../components/HymnSuggestionCard'
 import { LoadingBlock } from '../components/LoadingBlock'
 import { SurfaceCard } from '../components/SurfaceCard'
+import { HYMN_SUGGESTION_COUNT } from '../constants'
 import { getHymnById } from '../data/hymnCatalog'
-import { matchHymnsWithGemini } from '../services/geminiHymnMatch'
+import { matchHymnsWithGemini, type MatchResultMeta } from '../services/geminiHymnMatch'
 import { getActiveReading, setMatchSession } from '../storage/sessionReading'
 import { explainMatchError } from '../utils/friendlyErrors'
-import type { DailyReading, MatchResult } from '../types'
+import type { DailyReading } from '../types'
 
 export function SuggestionsScreen() {
   const router = useRouter()
   const params = useLocalSearchParams()
-  const themeHint = String(params.themeHint ?? '')
+  const themeHint = String(params.themeHint ?? '').trim()
 
   const [reading, setReading] = useState<DailyReading | null>(null)
   const [readingLoaded, setReadingLoaded] = useState(false)
-  const [result, setResult] = useState<MatchResult | null>(null)
+  const [result, setResult] = useState<MatchResultMeta | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [feedback, setFeedback] = useState<'good' | 'poor' | null>(null)
@@ -36,6 +39,7 @@ export function SuggestionsScreen() {
     if (!reading) return
     setLoading(true)
     setError(null)
+    setFeedback(null)
     try {
       const match = await matchHymnsWithGemini(reading, {
         sermonThemeHint: themeHint || undefined,
@@ -44,6 +48,7 @@ export function SuggestionsScreen() {
       await setMatchSession({ reading, themeHint, sermonThemes: match.sermonThemes })
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Matching failed')
+      setResult(null)
     } finally {
       setLoading(false)
     }
@@ -56,16 +61,25 @@ export function SuggestionsScreen() {
   if (readingLoaded && !reading) {
     return (
       <AppScreen
-        title="No passage loaded"
-        subtitle="Start from Today and tap Find matching hymns."
+        title="Suggested hymns"
+        subtitle="No sermon text loaded"
         onBack={() => router.replace('/(tabs)/today')}
       >
-        <Button
-          {...PressPresets.primary}
-          onPress={() => router.replace('/(tabs)/today')}
-        >
-          Go to Today
-        </Button>
+        <SurfaceCard accent="blue">
+          <Text
+            lineHeight={22}
+            color="$color11"
+          >
+            Go back to Word, load your passage, then tap Find matching hymns.
+          </Text>
+          <Button
+            {...PressPresets.primary}
+            marginTop="$2"
+            onPress={() => router.replace('/(tabs)/today')}
+          >
+            Go to Word
+          </Button>
+        </SurfaceCard>
       </AppScreen>
     )
   }
@@ -74,7 +88,8 @@ export function SuggestionsScreen() {
     return (
       <AppScreen
         title="Suggested hymns"
-        subtitle="Preparing your sermon context…"
+        subtitle="Loading your passage…"
+        onBack={() => router.back()}
       >
         <LoadingBlock minimal />
       </AppScreen>
@@ -86,10 +101,76 @@ export function SuggestionsScreen() {
   return (
     <AppScreen
       title="Suggested hymns"
-      subtitle={`${reading.reference} · ${reading.title}`}
+      subtitle={reading.reference}
       onBack={() => router.back()}
+      headerRight={
+        !loading && result ? (
+          <HeaderIconButton
+            onPress={() => void loadMatches()}
+            accessibilityLabel="Refresh suggestions"
+          >
+            <RefreshCw
+              size={20}
+              color="white"
+            />
+          </HeaderIconButton>
+        ) : undefined
+      }
     >
-      {loading ? <LoadingBlock label="Finding hymns…" /> : null}
+      <SurfaceCard accent="blue">
+        <XStack
+          alignItems="flex-start"
+          gap="$3"
+        >
+          <YStack
+            width={40}
+            height={40}
+            borderRadius={12}
+            backgroundColor="$blue3"
+            alignItems="center"
+            justifyContent="center"
+          >
+            <BookOpen
+              size={20}
+              color="#335CFF"
+            />
+          </YStack>
+          <YStack
+            flex={1}
+            gap="$1"
+          >
+            <Text
+              fontWeight="700"
+              fontSize={15}
+            >
+              {reading.title}
+            </Text>
+            {themeHint ? (
+              <Text
+                fontSize={13}
+                color="$color10"
+                lineHeight={19}
+              >
+                Your theme note: {themeHint}
+              </Text>
+            ) : (
+              <Text
+                fontSize={13}
+                color="$color10"
+              >
+                {HYMN_SUGGESTION_COUNT} hymns chosen to support the message of this passage.
+              </Text>
+            )}
+          </YStack>
+        </XStack>
+      </SurfaceCard>
+
+      {loading ? (
+        <LoadingBlock
+          label="Finding hymns for your message"
+          sublabel="This usually takes a few seconds."
+        />
+      ) : null}
 
       {matchErr ? (
         <ErrorPanel
@@ -100,9 +181,28 @@ export function SuggestionsScreen() {
         />
       ) : null}
 
+      {result?.matchSource === 'catalogue-fallback' ? (
+        <SurfaceCard accent="green">
+          <Text
+            fontSize={14}
+            lineHeight={21}
+            color="$color11"
+          >
+            Live suggestions were unavailable. These hymns are matched from the catalogue using
+            themes in your passage. Confirm each choice with your hymnbook.
+          </Text>
+        </SurfaceCard>
+      ) : null}
+
       {result?.sermonThemes?.length ? (
         <YStack gap="$2">
-          <Text fontWeight="700">Themes identified</Text>
+          <Text
+            fontWeight="700"
+            fontSize={15}
+            paddingHorizontal="$1"
+          >
+            Message themes
+          </Text>
           <XStack
             flexWrap="wrap"
             gap="$2"
@@ -125,61 +225,37 @@ export function SuggestionsScreen() {
         </YStack>
       ) : null}
 
-      {result?.recommendations.map((rec, index) => {
-        const hymn = getHymnById(rec.hymnId)
-        if (!hymn) return null
-        return (
-          <SurfaceCard
-            key={rec.hymnId}
-            accent={index === 0 ? 'green' : 'blue'}
-          >
-            <Text
-              fontSize={12}
-              color="$color10"
-              fontWeight="600"
-              textTransform="uppercase"
-            >
-              Suggestion {index + 1} · {rec.fitStrength} fit
-            </Text>
-            <Text
-              fontSize={20}
-              fontWeight="800"
-            >
-              #{hymn.number} · {hymn.title}
-            </Text>
-            <Text
-              fontSize={13}
-              color="$color10"
-            >
-              {hymn.collectionLabel}
-            </Text>
-            <Text lineHeight={22}>{rec.reason}</Text>
-            {rec.matchedThemes.length ? (
-              <Text
-                fontSize={13}
-                color="$color11"
-              >
-                Themes: {rec.matchedThemes.join(', ')}
-              </Text>
-            ) : null}
-            <Button
-              {...PressPresets.primary}
-              onPress={() =>
-                router.push({
-                  pathname: '/hymn/[id]',
-                  params: { id: hymn.id },
-                })
-              }
-            >
-              View hymn details
-            </Button>
-          </SurfaceCard>
-        )
-      })}
+      {!loading && result?.recommendations.length ? (
+        <YStack gap="$4">
+          {result.recommendations.map((rec, index) => {
+            const hymn = getHymnById(rec.hymnId)
+            if (!hymn) return null
+            return (
+              <HymnSuggestionCard
+                key={rec.hymnId}
+                rank={index + 1}
+                hymn={hymn}
+                recommendation={rec}
+                onViewDetails={() =>
+                  router.push({
+                    pathname: '/hymn/[id]',
+                    params: { id: hymn.id },
+                  })
+                }
+              />
+            )
+          })}
+        </YStack>
+      ) : null}
 
-      {!loading && result ? (
+      {!loading && result && !error ? (
         <SurfaceCard>
-          <Text fontWeight="700">Was this helpful?</Text>
+          <Text
+            fontWeight="700"
+            marginBottom="$2"
+          >
+            Was this helpful?
+          </Text>
           <XStack gap="$2">
             <Button
               flex={1}
@@ -188,7 +264,7 @@ export function SuggestionsScreen() {
               onPress={() => setFeedback('good')}
               backgroundColor={feedback === 'good' ? '$green3' : undefined}
             >
-              Good match
+              Helpful
             </Button>
             <Button
               flex={1}
@@ -197,13 +273,14 @@ export function SuggestionsScreen() {
               onPress={() => setFeedback('poor')}
               backgroundColor={feedback === 'poor' ? '$red3' : undefined}
             >
-              Poor match
+              Not quite
             </Button>
           </XStack>
           {feedback ? (
             <Text
               fontSize={13}
               color="$color10"
+              marginTop="$2"
             >
               Thank you. Your feedback helps improve future hymn tagging.
             </Text>

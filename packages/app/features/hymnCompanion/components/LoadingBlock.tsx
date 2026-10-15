@@ -14,10 +14,7 @@ export function LoadingBlock({ label, sublabel, minimal }: LoadingBlockProps) {
       alignItems="center"
       justifyContent="center"
       gap="$3"
-      minHeight={160}
-      animation="100ms"
-      enterStyle={{ opacity: 0 }}
-      opacity={1}
+      minHeight={120}
     >
       <Spinner size="large" />
       {!minimal && label ? (
