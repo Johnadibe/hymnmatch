@@ -1,6 +1,6 @@
 import type { ReadingSlot } from './types'
 
-/** Wed, Fri, Sun — BSG is the required fellowship reading. */
+/** Wed, Fri, Sun — daily column is the required Daily Bread reading. */
 export function isBsgRequiredDay(date: Date): boolean {
   const day = date.getDay()
   return day === 0 || day === 3 || day === 5
@@ -13,13 +13,14 @@ export function isMpEpChoiceDay(date: Date): boolean {
 }
 
 export function defaultSlotForDate(date: Date): ReadingSlot {
+  if (isMpEpChoiceDay(date)) return 'mp'
   return 'bsg'
 }
 
 export function slotLabel(slot: ReadingSlot): string {
   switch (slot) {
     case 'bsg':
-      return 'Daily reading'
+      return 'Daily Bread'
     case 'mp':
       return 'Morning Prayer'
     case 'ep':

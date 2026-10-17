@@ -16,34 +16,11 @@ import {
 } from '../data/lectionary/preparationDate'
 import { TYPE } from '../constants'
 import { LectionaryDateSheet } from './LectionaryDateSheet'
+import { ScheduleChip } from './ScheduleChip'
 
 type PreparationDateBarProps = {
   value: Date
   onChange: (date: Date) => void
-}
-
-function QuickChip({
-  label,
-  active,
-  onPress,
-}: {
-  label: string
-  active: boolean
-  onPress: () => void
-}) {
-  return (
-    <Button
-      size="$2"
-      {...PressPresets.filter}
-      backgroundColor={active ? '$blue9' : '$backgroundStrong'}
-      color={active ? 'white' : '$color11'}
-      borderWidth={1}
-      borderColor={active ? '$blue9' : '$borderColor'}
-      onPress={onPress}
-    >
-      {label}
-    </Button>
-  )
 }
 
 export function PreparationDateBar({ value, onChange }: PreparationDateBarProps) {
@@ -128,17 +105,17 @@ export function PreparationDateBar({ value, onChange }: PreparationDateBarProps)
         flexWrap="wrap"
         gap="$2"
       >
-        <QuickChip
+        <ScheduleChip
           label="Today"
           active={isSameCalendarDay(value, deviceToday)}
           onPress={() => onChange(clampToLectionaryRange(deviceToday))}
         />
-        <QuickChip
+        <ScheduleChip
           label="This Saturday"
           active={isSameCalendarDay(value, saturday)}
           onPress={() => onChange(saturday)}
         />
-        <QuickChip
+        <ScheduleChip
           label="This Sunday"
           active={isSameCalendarDay(value, sunday)}
           onPress={() => onChange(sunday)}

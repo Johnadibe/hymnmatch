@@ -6,6 +6,7 @@ import {
   resolveFellowshipReading,
   type ReadingSelection,
 } from '../data/lectionary/fellowshipLectionary'
+import { formatWeekdayGuide } from '../data/lectionary/preparationDate'
 import { fetchPassageText, type FetchPassageOptions } from './fetchPassage'
 
 export async function fetchFellowshipDailyReading(
@@ -28,8 +29,8 @@ export async function fetchFellowshipDailyReading(
   return {
     date: formatDateKey(date),
     reference: scripture.reference,
-    title: `${day.marketDay} · ${day.dayLabel}`,
-    sourceLabel: 'ACPPB fellowship lectionary',
+    title: `${day.marketDay} · ${formatWeekdayGuide(date)}`,
+    sourceLabel: 'ACPPB Daily Bread Guide',
     passages: [chosen.reference],
     text: scripture.text,
     verses: scripture.verses,
@@ -37,7 +38,7 @@ export async function fetchFellowshipDailyReading(
     textDelivery: scripture.delivery,
     fellowship: {
       marketDay: day.marketDay,
-      dayLabel: day.dayLabel,
+      dayLabel: formatWeekdayGuide(date),
       slot: chosen.slot,
       bsg: day.bsg,
       mp: day.mp,

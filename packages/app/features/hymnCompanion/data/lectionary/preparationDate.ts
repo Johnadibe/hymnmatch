@@ -64,19 +64,26 @@ export function upcomingWeekday(from: Date, weekday: number): Date {
   return clampToLectionaryRange(addCalendarDays(d, diff))
 }
 
+/** ACPPB Daily Bread weekday labels (fixed, not locale-dependent). */
+const WEEKDAY_GUIDE = ['Sun', 'Mon', 'Tue', 'Wed', 'Thurs', 'Fri', 'Sat'] as const
+
+export function formatWeekdayGuide(date: Date): string {
+  return WEEKDAY_GUIDE[date.getDay()] ?? 'Sun'
+}
+
 export function formatPreparationHeading(date: Date): string {
-  return date.toLocaleDateString(undefined, {
-    weekday: 'long',
+  const rest = date.toLocaleDateString(undefined, {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
   })
+  return `${formatWeekdayGuide(date)}, ${rest}`
 }
 
 export function formatPreparationShort(date: Date): string {
-  return date.toLocaleDateString(undefined, {
-    weekday: 'short',
+  const rest = date.toLocaleDateString(undefined, {
     month: 'short',
     day: 'numeric',
   })
+  return `${formatWeekdayGuide(date)}, ${rest}`
 }

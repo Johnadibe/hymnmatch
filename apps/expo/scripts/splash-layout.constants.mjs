@@ -3,9 +3,9 @@ export const SPLASH_W = 1080
 export const SPLASH_H = 2340
 
 export const GRADIENT_COLORS = [
-  { r: 0x2f, g: 0x6b, b: 0xff },
-  { r: 0x4e, g: 0x9b, b: 0xff },
-  { r: 0x5a, g: 0xeb, b: 0xb0 },
+  { r: 0x5a, g: 0x8f, b: 0xff },
+  { r: 0x7b, g: 0xc8, b: 0xff },
+  { r: 0x8a, g: 0xff, b: 0xcc },
 ]
 
 export const GRADIENT_START = { x: 0.2, y: 0 }

@@ -1,15 +1,12 @@
 import { HYMN_SUGGESTION_COUNT } from '../constants'
-import { catalogForPrompt, hymnCatalog, getHymnById } from '../data/hymnCatalog'
+import { catalogForPrompt, getHymnById } from '../data/hymnCatalog'
 import type { DailyReading, HymnRecommendation, MatchResult } from '../types'
+import { igboAwareCatalogMatch } from './igboAwareCatalogMatch'
 
 /** Default if EXPO_PUBLIC_GEMINI_MODEL is unset. See https://ai.google.dev/gemini-api/docs/models */
 const DEFAULT_MODEL = 'gemini-3.8-flash'
 
-const MODEL_FALLBACKS = [
-  'gemini-3.8-flash',
-  'gemini-2.5-flash',
-  'gemini-2.5-flash-lite',
-] as const
+const MODEL_FALLBACKS = ['gemini-3.8-flash', 'gemini-2.5-flash', 'gemini-2.5-flash-lite'] as const
 
 type GeminiResponse = {
   candidates?: Array<{
@@ -56,10 +53,11 @@ function buildPrompt(reading: DailyReading, sermonThemeHint?: string): string {
 
 Rules:
 - Choose ONLY hymns from the catalogue below (use exact "id" values such as abu-1).
-- Match using the English titles and themes; the congregation sings the Igbo Abu text in worship.
+- Match using Igbo titles, English titles, themes, and scripture quotes in the catalogue; worship uses the Igbo Abu text.
 - Recommend exactly ${HYMN_SUGGESTION_COUNT} hymns as the primary suggestions (all different catalogue ids).
 - Never invent hymn titles, numbers, or lyrics.
 - Explain WHY each hymn fits the message (themes, spiritual fit), not keyword matching.
+- Use plain punctuation in reasons (commas and periods only; no em dashes or en dashes).
 - Output valid JSON only.
 
 Scripture reference: ${reading.reference}
@@ -120,34 +118,23 @@ function validateRecommendations(result: MatchResult): MatchResult {
   }
 }
 
-/** Fallback when offline, no API key, or all models fail — theme overlap in catalogue metadata. */
-export function localFallbackMatch(reading: DailyReading): MatchResultMeta {
-  const haystack = `${reading.title} ${reading.text} ${reading.reference}`.toLowerCase()
-  const scored = hymnCatalog
-    .map((hymn) => {
-      let score = 0
-      for (const theme of hymn.themes) {
-        if (haystack.includes(theme.toLowerCase())) score += 2
-      }
-      for (const ref of hymn.scriptureRefs) {
-        const book = ref.split(/[\s:]/)[0]?.toLowerCase()
-        if (book && haystack.includes(book)) score += 1
-      }
-      return { hymn, score }
-    })
-    .sort((a, b) => b.score - a.score)
+function isNetworkOrTransientError(message: string): boolean {
+  const lower = message.toLowerCase()
+  return (
+    lower.includes('network request failed') ||
+    lower.includes('failed to fetch') ||
+    lower.includes('timed out') ||
+    lower.includes('offline') ||
+    lower.includes('internet')
+  )
+}
 
-  const top = scored.slice(0, HYMN_SUGGESTION_COUNT)
-  return {
-    sermonThemes: ['Themes from your passage (catalogue match)'],
-    recommendations: top.map(({ hymn }, index) => ({
-      hymnId: hymn.id,
-      fitStrength: index === 0 ? 'strong' : index === 1 ? 'good' : 'moderate',
-      reason: `This hymn’s catalogue themes (${hymn.themes.slice(0, 3).join(', ')}) may support your message. Confirm with your hymnbook and in prayer.`,
-      matchedThemes: hymn.themes.slice(0, 3),
-    })),
-    matchSource: 'catalogue-fallback',
-  }
+/** Fallback when offline, no API key, or all models fail — Igbo-aware on-device match. */
+export function localFallbackMatch(
+  reading: DailyReading,
+  options?: { sermonThemeHint?: string }
+): MatchResultMeta {
+  return igboAwareCatalogMatch(reading, options)
 }
 
 async function requestGeminiMatch(
@@ -195,22 +182,20 @@ export async function matchHymnsWithGemini(
 ): Promise<MatchResultMeta> {
   const { apiKey, model } = getGeminiConfig()
   if (!apiKey) {
-    return localFallbackMatch(reading)
+    return localFallbackMatch(reading, options)
   }
 
   let lastError: Error | null = null
   for (const candidate of modelsToTry(model)) {
     try {
-      const result = await requestGeminiMatch(
-        apiKey,
-        candidate,
-        reading,
-        options?.sermonThemeHint
-      )
+      const result = await requestGeminiMatch(apiKey, candidate, reading, options?.sermonThemeHint)
       return { ...result, matchSource: 'gemini' }
     } catch (e) {
       const err = e instanceof Error ? e : new Error(String(e))
       lastError = err
+      if (isNetworkOrTransientError(err.message)) {
+        return localFallbackMatch(reading, options)
+      }
       if (!isModelOrAvailabilityError(err.message)) {
         throw err
       }
@@ -218,7 +203,7 @@ export async function matchHymnsWithGemini(
   }
 
   if (lastError && isModelOrAvailabilityError(lastError.message)) {
-    return localFallbackMatch(reading)
+    return localFallbackMatch(reading, options)
   }
 
   throw lastError ?? new Error('Could not suggest hymns.')

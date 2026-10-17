@@ -1,0 +1,263 @@
+/**
+ * Section headings as printed in the ACPPB Igbo Abu (from transcribed snaps 1–128).
+ */
+export type AcppbAbuSection = {
+  id: string
+  titleIgbo: string
+  titleEnglish: string
+  hymnFrom: number
+  hymnTo: number
+}
+
+export const acppbAbuSections: AcppbAbuSection[] = [
+  {
+    id: 'ato-nim-otu',
+    titleIgbo: "ATỌ NIM'OTU.",
+    titleEnglish: 'The Trinity',
+    hymnFrom: 1,
+    hymnTo: 7,
+  },
+  {
+    id: 'chineke-nna',
+    titleIgbo: 'CHINEKE NNA.',
+    titleEnglish: 'God the Father',
+    hymnFrom: 8,
+    hymnTo: 12,
+  },
+  {
+    id: 'chineke-okpara',
+    titleIgbo: 'CHINEKE OKPARA.',
+    titleEnglish: 'God the Son',
+    hymnFrom: 13,
+    hymnTo: 18,
+  },
+  {
+    id: 'omumu-jisus',
+    titleIgbo: 'ỌMỤMỤ JISUS.',
+    titleEnglish: 'Birth of Jesus',
+    hymnFrom: 19,
+    hymnTo: 30,
+  },
+  {
+    id: 'onwu-jisus',
+    titleIgbo: 'ỌNWỤ JISUS.',
+    titleEnglish: 'Death of Jesus',
+    hymnFrom: 31,
+    hymnTo: 42,
+  },
+  {
+    id: 'nbilite-onwu',
+    titleIgbo: "NBILITE-N'ỌNWỤ JISUS.",
+    titleEnglish: 'Resurrection of Jesus',
+    hymnFrom: 43,
+    hymnTo: 50,
+  },
+  {
+    id: 'nrigo-elu-igwe',
+    titleIgbo: "NRIGO N'ELU-IGWE JISUS.",
+    titleEnglish: 'Ascension of Jesus',
+    hymnFrom: 51,
+    hymnTo: 54,
+  },
+  {
+    id: 'obibia-jisus',
+    titleIgbo: 'OBIBIA JISUS.',
+    titleEnglish: 'Second coming of Jesus',
+    hymnFrom: 55,
+    hymnTo: 61,
+  },
+  {
+    id: 'chineke-mo-nso',
+    titleIgbo: 'CHINEKE MỌ NSỌ.',
+    titleEnglish: 'God the Holy Spirit',
+    hymnFrom: 62,
+    hymnTo: 71,
+  },
+  {
+    id: 'akwukwo-nso',
+    titleIgbo: 'AKWUKWỌ NSỌ.',
+    titleEnglish: 'Holy Scripture',
+    hymnFrom: 72,
+    hymnTo: 80,
+  },
+  {
+    id: 'nzuko-uwa',
+    titleIgbo: "NZUKỌ KRAIST N'ELU-UWA.",
+    titleEnglish: 'Church of Christ on earth',
+    hymnFrom: 81,
+    hymnTo: 90,
+  },
+  {
+    id: 'nzuko-igwe',
+    titleIgbo: "NZUKỌ KRAIST N'ELU-IGWE.",
+    titleEnglish: 'Church of Christ in heaven',
+    hymnFrom: 91,
+    hymnTo: 92,
+  },
+  {
+    id: 'ubochi-onye-nwe',
+    titleIgbo: 'UBỌCHI ONYE-NWE-AYI.',
+    titleEnglish: "The Lord's Day",
+    hymnFrom: 93,
+    hymnTo: 101,
+  },
+  { id: 'baptism', titleIgbo: 'BAPTISM.', titleEnglish: 'Baptism', hymnFrom: 102, hymnTo: 108 },
+  {
+    id: 'inye-ike',
+    titleIgbo: 'INYE-IKE.',
+    titleEnglish: 'Offertory / dedication',
+    hymnFrom: 109,
+    hymnTo: 112,
+  },
+  {
+    id: 'oriri-nso',
+    titleIgbo: 'ORIRI NSỌ.',
+    titleEnglish: 'Holy Communion',
+    hymnFrom: 113,
+    hymnTo: 124,
+  },
+  {
+    id: 'ido-ndiozi',
+    titleIgbo: 'IDO NDI-OZI NSỌ.',
+    titleEnglish: 'Ordination of ministers',
+    hymnFrom: 125,
+    hymnTo: 131,
+  },
+  {
+    id: 'ijiko-nwunye',
+    titleIgbo: 'IJIKỌ DI NA NWUNYE.',
+    titleEnglish: 'Marriage (husband and wife)',
+    hymnFrom: 132,
+    hymnTo: 135,
+  },
+  {
+    id: 'ili-ozu',
+    titleIgbo: 'ILỊ OZU.',
+    titleEnglish: 'Burial / funeral',
+    hymnFrom: 136,
+    hymnTo: 141,
+  },
+  { id: 'elu-igwe', titleIgbo: 'ELU-IGWE.', titleEnglish: 'Heaven', hymnFrom: 142, hymnTo: 145 },
+  {
+    id: 'otuto',
+    titleIgbo: 'OTUTO.',
+    titleEnglish: 'Praise and thanksgiving',
+    hymnFrom: 146,
+    hymnTo: 169,
+  },
+  {
+    id: 'ncheghari',
+    titleIgbo: 'NCHÈGHARI.',
+    titleEnglish: 'Repentance',
+    hymnFrom: 170,
+    hymnTo: 180,
+  },
+  { id: 'okwukwe', titleIgbo: 'OKWUKWE.', titleEnglish: 'Faith', hymnFrom: 181, hymnTo: 193 },
+  {
+    id: 'ito-namara',
+    titleIgbo: "ITỌ N'AMARA.",
+    titleEnglish: 'Praise of grace',
+    hymnFrom: 194,
+    hymnTo: 205,
+  },
+  {
+    id: 'iso-kraist',
+    titleIgbo: 'ISO KRAIST.',
+    titleEnglish: 'Following Christ',
+    hymnFrom: 206,
+    hymnTo: 220,
+  },
+  {
+    id: 'iluso-nmehie',
+    titleIgbo: 'ILUSO NMEHIE ỌGU.',
+    titleEnglish: 'Christian warfare / temptation',
+    hymnFrom: 221,
+    hymnTo: 233,
+  },
+  {
+    id: 'igbara-kraist',
+    titleIgbo: 'IGBARA KRAIST ÀMÀ.',
+    titleEnglish: 'Christ the Lamb',
+    hymnFrom: 234,
+    hymnTo: 235,
+  },
+  {
+    id: 'ijere-kraist',
+    titleIgbo: 'IJERE KRAIST OZI.',
+    titleEnglish: 'Mission of Christ',
+    hymnFrom: 236,
+    hymnTo: 244,
+  },
+  { id: 'ekpere', titleIgbo: 'EKPERE.', titleEnglish: 'Prayer', hymnFrom: 245, hymnTo: 252 },
+  {
+    id: 'ozi-oma',
+    titleIgbo: 'OZI ỌMA.',
+    titleEnglish: 'Good news / Gospel',
+    hymnFrom: 253,
+    hymnTo: 274,
+  },
+  {
+    id: 'umu-ntakiri',
+    titleIgbo: 'UMU-NTAKIRI.',
+    titleEnglish: "Children's hymns",
+    hymnFrom: 275,
+    hymnTo: 296,
+  },
+  { id: 'ututu', titleIgbo: 'UTUTU.', titleEnglish: 'Morning', hymnFrom: 297, hymnTo: 305 },
+  { id: 'anyasi', titleIgbo: 'ANYASI.', titleEnglish: 'Evening', hymnFrom: 306, hymnTo: 317 },
+  {
+    id: 'onyinye',
+    titleIgbo: 'ONYINYE.',
+    titleEnglish: 'Offertory / dedication',
+    hymnFrom: 318,
+    hymnTo: 323,
+  },
+  { id: 'aro-ohu', titleIgbo: 'ARỌ ỌHU.', titleEnglish: 'New year', hymnFrom: 324, hymnTo: 330 },
+  {
+    id: 'ndi-oria',
+    titleIgbo: 'NDI-ỌRIA.',
+    titleEnglish: 'For the sick',
+    hymnFrom: 331,
+    hymnTo: 332,
+  },
+  {
+    id: 'ndi-ije',
+    titleIgbo: 'NDI-IJE.',
+    titleEnglish: 'For travellers',
+    hymnFrom: 333,
+    hymnTo: 336,
+  },
+  {
+    id: 'ido-ulo-nso',
+    titleIgbo: 'IDO ULO NSỌ.',
+    titleEnglish: 'Church dedication',
+    hymnFrom: 337,
+    hymnTo: 341,
+  },
+  {
+    id: 'abu-nta',
+    titleIgbo: 'ABÙ NTÀ DI ICHE ICHE.',
+    titleEnglish: 'Miscellaneous short hymns',
+    hymnFrom: 342,
+    hymnTo: 356,
+  },
+  { id: 'koros', titleIgbo: 'KỌRỌS.', titleEnglish: 'Choruses', hymnFrom: 357, hymnTo: 367 },
+  {
+    id: 'cheputara',
+    titleIgbo: 'ABÙ NKE NDI-IGBO CHEPUTARA.',
+    titleEnglish: 'Hymns composed by Igbo authors',
+    hymnFrom: 368,
+    hymnTo: 399,
+  },
+  {
+    id: 'niger-womens-guild',
+    titleIgbo: "ABỤ NKE NIGER DIOCESAN WOMEN'S GUILD.",
+    titleEnglish: "Niger Diocesan Women's Guild",
+    hymnFrom: 400,
+    hymnTo: 400,
+  },
+]
+
+export function sectionForAbuNumber(n: number): AcppbAbuSection | undefined {
+  return acppbAbuSections.find((s) => n >= s.hymnFrom && n <= s.hymnTo)
+}

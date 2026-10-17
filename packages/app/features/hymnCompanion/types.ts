@@ -1,3 +1,10 @@
+export type SongOfPraiseEntry = {
+  id: string
+  number: number
+  title: string
+  lyrics: string
+}
+
 export type HymnCollection = 'acppb_abu'
 
 export type HymnCatalogEntry = {
@@ -21,6 +28,16 @@ export type HymnCatalogEntry = {
   lyricsIgbo?: string
   /** Typical A&M / SS&S cross-reference; edition numbers may vary. */
   englishHymnalRefs?: string
+  /** Printed section heading (e.g. ATỌ NIM'OTU.). */
+  bookSection?: string
+  /** Footnote page number in the Abu book, e.g. (1). */
+  bookPage?: number
+  /** Tune refs from book margin, e.g. (A. I), (U. 122), P.M. */
+  hymnBookRefs?: string
+  /** Meter line, e.g. 7.7.7.7.7.7. */
+  meter?: string
+  /** Scripture quote as printed above the hymn (Igbo). */
+  scriptureQuoteIgbo?: string
   /** English synopsis sent to the suggestion service (not shown as primary UI). */
   matchProfile: string
   /** Fellowship has confirmed Igbo text and English mapping. */
@@ -74,5 +91,10 @@ export type SavedPreparation = {
   sermonTheme: string
   notes: string
   selectedHymnIds: string[]
+  /** All suggested Abu ids from the last match (offline revisit). */
+  recommendedHymnIds?: string[]
+  passageText?: string
+  passageTranslation?: string
+  dailyBreadSlot?: string
   createdAt: string
 }

@@ -1,5 +1,5 @@
 /** Number of hymn recommendations shown per sermon / passage match. */
-export const HYMN_SUGGESTION_COUNT = 4
+export const HYMN_SUGGESTION_COUNT = 7
 
 /** Readable type scale for chapel use (slightly larger than default UI). */
 export const TYPE = {

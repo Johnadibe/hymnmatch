@@ -1,7 +1,7 @@
 import { Tabs } from 'expo-router'
 import { Pressable } from 'react-native'
 import { Text, YStack } from '@my/ui'
-import { BookOpen, CalendarDays, Info, Library } from '@tamagui/lucide-icons'
+import { BookOpen, CalendarDays, Info, Library, Music2 } from '@tamagui/lucide-icons'
 
 function TabIcon({
   Icon,
@@ -49,8 +49,8 @@ export default function TabLayout() {
         tabBarStyle: {
           backgroundColor: '#FFFFFF',
           borderTopColor: '#E5E5E5',
-          height: 64,
-          paddingBottom: 8,
+          height: 68,
+          paddingBottom: 10,
         },
         tabBarButton: (props) => (
           <Pressable
@@ -99,6 +99,20 @@ export default function TabLayout() {
             <TabIcon
               Icon={BookOpen}
               label="Saved"
+              focused={focused}
+            />
+          ),
+          tabBarLabel: () => null,
+        }}
+      />
+      <Tabs.Screen
+        name="praise"
+        options={{
+          title: 'Praise',
+          tabBarIcon: ({ focused }) => (
+            <TabIcon
+              Icon={Music2}
+              label="Praise"
               focused={focused}
             />
           ),

@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useRouter } from 'expo-router'
 import * as ExpoSplashScreen from 'expo-splash-screen'
+import { scheduleDailyBreadCacheWarm } from '../services/warmDailyBreadCache'
 import { isOnboardingComplete } from '../storage/onboarding'
 
 const MIN_SPLASH_MS = 1100
@@ -19,6 +20,7 @@ export function BootstrapScreen() {
 
     void (async () => {
       const delay = new Promise((r) => setTimeout(r, MIN_SPLASH_MS))
+      scheduleDailyBreadCacheWarm()
       const [complete] = await Promise.all([isOnboardingComplete(), delay])
 
       router.replace(complete ? '/(tabs)/today' : '/onboarding')

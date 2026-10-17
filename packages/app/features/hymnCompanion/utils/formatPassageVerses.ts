@@ -25,12 +25,13 @@ export function passageTextFromVerses(verses: ScriptureVerse[]): string {
   if (verses.length === 0) return ''
   const chapters = new Set(verses.map((v) => v.chapter))
   const multiChapter = chapters.size > 1
-  return verses
-    .map((v) => `${verseLabel(v.chapter, v.verse, multiChapter)} ${v.text}`)
-    .join('\n\n')
+  return verses.map((v) => `${verseLabel(v.chapter, v.verse, multiChapter)} ${v.text}`).join('\n\n')
 }
 
-export function formatPassageFromApi(apiVerses: ApiVerse[] | undefined, fallbackText: string): {
+export function formatPassageFromApi(
+  apiVerses: ApiVerse[] | undefined,
+  fallbackText: string
+): {
   text: string
   verses: ScriptureVerse[]
 } {

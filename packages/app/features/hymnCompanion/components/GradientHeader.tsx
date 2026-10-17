@@ -60,18 +60,26 @@ export function GradientHeader({
               />
             </HeaderIconButton>
             {headerRight ? (
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>{headerRight}</View>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                {headerRight}
+              </View>
             ) : (
               <View style={{ width: 40, height: 40 }} />
             )}
           </View>
         ) : (
-          <YStack marginBottom="$1">
+          <YStack
+            marginBottom="$5"
+            paddingBottom="$2"
+          >
             <BrandMark />
           </YStack>
         )}
 
-        <YStack gap="$2">
+        <YStack
+          gap="$2"
+          marginTop="$1"
+        >
           <Text
             fontSize={isStack ? 22 : 24}
             fontWeight="800"

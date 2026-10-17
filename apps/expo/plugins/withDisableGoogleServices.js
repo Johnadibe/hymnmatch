@@ -1,5 +1,5 @@
-const fs = require('fs')
-const path = require('path')
+const fs = require('node:fs')
+const path = require('node:path')
 const {
   AndroidConfig,
   withAndroidColors,
@@ -82,11 +82,22 @@ function installFullScreenSplashAssets(projectRoot, platformRoot) {
   const nodpiDir = path.join(resRoot, 'drawable-nodpi')
   fs.mkdirSync(drawableDir, { recursive: true })
   fs.mkdirSync(nodpiDir, { recursive: true })
-  fs.writeFileSync(path.join(drawableDir, 'splashscreen_full_bleed_background.xml'), splashBackgroundXml)
+  fs.writeFileSync(
+    path.join(drawableDir, 'splashscreen_full_bleed_background.xml'),
+    splashBackgroundXml
+  )
   fs.writeFileSync(path.join(drawableDir, 'splashscreen_empty.xml'), emptySplashIconXml)
   fs.copyFileSync(source, path.join(nodpiDir, 'splashscreen_mark.png'))
 
-  for (const folder of ['drawable', 'drawable-mdpi', 'drawable-hdpi', 'drawable-xhdpi', 'drawable-xxhdpi', 'drawable-xxxhdpi', 'drawable-nodpi']) {
+  for (const folder of [
+    'drawable',
+    'drawable-mdpi',
+    'drawable-hdpi',
+    'drawable-xhdpi',
+    'drawable-xxhdpi',
+    'drawable-xxxhdpi',
+    'drawable-nodpi',
+  ]) {
     const scaled = path.join(resRoot, folder, 'splashscreen_full_bleed.png')
     if (fs.existsSync(scaled)) fs.unlinkSync(scaled)
   }
@@ -106,7 +117,10 @@ function applyFullScreenSplashStyle(styleConfig) {
         parent: 'Theme.SplashScreen',
       },
       item: [
-        { $: { name: 'android:windowBackground' }, _: '@drawable/splashscreen_full_bleed_background' },
+        {
+          $: { name: 'android:windowBackground' },
+          _: '@drawable/splashscreen_full_bleed_background',
+        },
         { $: { name: 'android:forceDarkAllowed' }, _: 'false' },
         { $: { name: 'windowSplashScreenBackground' }, _: '@android:color/transparent' },
         { $: { name: 'windowSplashScreenAnimatedIcon' }, _: '@drawable/splashscreen_empty' },
@@ -132,7 +146,10 @@ function patchSplashStylesOnDisk(platformRoot) {
     return
   }
   const styles = fs.readFileSync(stylesPath, 'utf8')
-  const next = styles.replace(/<style name="Theme\.App\.SplashScreen"[\s\S]*?<\/style>/, splashStyleBlock)
+  const next = styles.replace(
+    /<style name="Theme\.App\.SplashScreen"[\s\S]*?<\/style>/,
+    splashStyleBlock
+  )
   if (next !== styles) {
     fs.writeFileSync(stylesPath, next)
   }

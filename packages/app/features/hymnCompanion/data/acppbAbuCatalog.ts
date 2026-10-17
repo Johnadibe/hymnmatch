@@ -1,7 +1,14 @@
 import type { HymnCatalogEntry } from '../types'
+import { acppbAbuCatalog17to66 } from './acppbAbuCatalog17to66'
+import { acppbAbuCatalog67to128 } from './acppbAbuCatalog67to128'
+import { acppbAbuCatalog129to175 } from './acppbAbuCatalog129to175'
+import { acppbAbuCatalog176to224 } from './acppbAbuCatalog176to224'
+import { acppbAbuCatalog225to300 } from './acppbAbuCatalog225to300'
+import { acppbAbuCatalog301to400 } from './acppbAbuCatalog301to400'
+import { enrichAbuCatalog } from './enrichAbuThemes'
 
-/** ACPPB Igbo Abu hymns 1–16 — transcribed from fellowship uploads (Oct 2025). */
-export const acppbAbuCatalog: HymnCatalogEntry[] = [
+/** ACPPB Igbo Abu 1–16 — transcribed from fellowship hymnbook snaps (2025–26). */
+const acppbAbuCatalog1to16: HymnCatalogEntry[] = [
   {
     id: 'abu-1',
     number: 1,
@@ -11,13 +18,17 @@ export const acppbAbuCatalog: HymnCatalogEntry[] = [
     collectionLabel: 'ACPPB Abu (Igbo)',
     language: 'ig',
     themes: ['holiness', 'Trinity', 'praise', 'worship', 'majesty'],
-    scriptureRefs: ['Isaiah 6:3', 'Revelation 4:8'],
+    scriptureRefs: ['Revelation 4:8'],
     occasion: ['opening', 'praise'],
     firstLine: 'Nsọ, Nsọ, Nsọ! Chuku-Okike',
-    englishHymnalRefs: 'Ancient & Modern 160; SS&S 1 (typical)',
+    englishHymnalRefs: 'Ancient & Modern 160 (A. I); SS&S 122 (U. 122)',
+    bookSection: "ATỌ NIM'OTU.",
+    bookPage: 1,
+    hymnBookRefs: '(A. I), (U. 122), P.M.',
+    scriptureQuoteIgbo: '"Ha adigh-ezu ike ehihie na abali, nasi, Nsọ, Nsọ, Nsọ!" Nkpughe 4. 8.',
     matchProfile:
       'Holy, Holy, Holy, Lord God Almighty — adoration of the triune God, holiness, eternal praise with angels, morning worship.',
-    verified: false,
+    verified: true,
     lyricsIgbo: `Verse 1
 Nsọ, Nsọ, Nsọ! Chuku-Okike,
 N'isi ututu ayi gabu abu nye Gi;
@@ -32,9 +43,9 @@ Onye nọri, nanọ, ganọgide.
 
 Verse 3
 Nsọ, Nsọ, Nsọ! Gi di ebube,
-Anya ndi-nmehie apụgh ihu otuto-Gi;
-Ọ bu nani I di nsọ; ọ digh ony'ọzọ
-Zur'oke n'ike, na ihu-n'anya.
+Anya ndi-nmehie apugh ihu otuto-Gi;
+Ọ bu nani I di nsọ: ọ digh ony'ọzọ
+Zur'okè n'ike, na ihu-n'anya.
 
 Verse 4
 Nsọ, Nsọ, Nsọ! Chuku-Okike,
@@ -51,20 +62,24 @@ Atọ nim'Otu, Chuku di ngọzi. Amen.`,
     collectionLabel: 'ACPPB Abu (Igbo)',
     language: 'ig',
     themes: ['holiness', 'Trinity', 'creation', 'praise', 'worship'],
-    scriptureRefs: ['Isaiah 6:3', 'Revelation 4:8'],
+    scriptureRefs: ['Isaiah 6:3'],
     occasion: ['opening', 'praise'],
     firstLine: 'Nsọ, Nsọ, Nsọ Chuku',
-    englishHymnalRefs: 'Ancient & Modern 160 (variant); SS&S 1 (typical)',
+    englishHymnalRefs: 'Ancient & Modern 160 (variant)',
+    bookSection: "ATỌ NIM'OTU.",
+    bookPage: 1,
+    meter: '7.7.7.7.7.7.',
+    scriptureQuoteIgbo: '"Nsọ, nsọ, nsọ, ka Jehova . . . di." Aisaia 6. 3.',
     matchProfile:
       'Holy, Holy, Holy, Lord God of hosts — creation worship, cherubim and seraphim, blessed Trinity, all creation praising God.',
-    verified: false,
+    verified: true,
     lyricsIgbo: `Verse 1
 Nsọ, Nsọ, Nsọ Chuku
 Eze di mgb'ebigh-ebi,
-Ony'igwe n'uwa neto;
+Ony'igwé n'uwa neto;
 Ndi-m'ozi nabu abu,
 Neto mgbe ebigh-ebi
-Triniti nke di ngozi.
+Triniti nke di ngọzi.
 
 Verse 2
 Gi kere ihe nile,
@@ -72,15 +87,15 @@ Na Gi ka ha nadi ndu,
 Gi nwe nsọpuru nile:
 Ihe nile neto Gi.
 Neto mgb'ebigh-ebi
-Triniti nke di ngozi.
+Triniti nke di ngọzi.
 
 Verse 3
 Cherubim na Serafim
-Ji nku-ha kpuch-iru-ha;
-Otù nazu ibe-ya
+Ji nku-ha kpuch'iru-ha;
+Otụ nazu ibe-ya
 Si, Nsọ, Nsọ, Nsọ;
 Neto mgb'ebigh-ebi
-Triniti nke di ngozi.
+Triniti nke di ngọzi.
 
 Verse 4
 Aleluya! ayi neto
@@ -88,47 +103,52 @@ Nna, n'Ọkpara na Mọ Nsọ,
 Atọ nim'Otu di nsọ;
 Ayi soro usu nd'igwe
 Neto mgbe ebigh-ebi
-Triniti nke di ngozi. Amen.`,
+Triniti nke di ngọzi. Amen.`,
   },
   {
     id: 'abu-3',
     number: 3,
-    title: "Nna nk'igwé , Nke hur'ayi n'anya",
+    title: "Nna nk'igwe, Nke hur'ayi n'anya",
     titleEnglish: 'Father of heaven, whose love profound',
     collection: 'acppb_abu',
     collectionLabel: 'ACPPB Abu (Igbo)',
     language: 'ig',
     themes: ['Trinity', 'forgiveness', 'salvation', 'grace', 'confession'],
-    scriptureRefs: ['Ephesians 1:3-14', '1 John 1:9'],
+    scriptureRefs: ['1 John 5:7-8'],
     occasion: ['opening', 'confession', 'response'],
-    firstLine: "Nna nk'igwé , Nke hur'ayi n'anya",
-    englishHymnalRefs: 'Ancient & Modern 164 (typical)',
+    firstLine: "Nna nk'igwe, Nke hur'ayi n'anya",
+    englishHymnalRefs: 'Ancient & Modern 135 (A. 135); SS&S 123 (U. 123)',
+    bookSection: "ATỌ NIM'OTU.",
+    bookPage: 2,
+    hymnBookRefs: '(A. 135), (U. 123), L.M.',
+    meter: 'L.M.',
+    scriptureQuoteIgbo: "N'ihi na ndi ahu ndi nagba ama di Atọ. 1 Jon 5. 8.",
     matchProfile:
       'Father of heaven, whose love profound — Trinity hymn of redemption: Father’s love, Son the Word and Saviour, Spirit giving life; sinners kneeling for pardon and grace.',
-    verified: false,
+    verified: true,
     lyricsIgbo: `Verse 1
-Nna nk'igwé , Nke hur'ayi n'anya,
+Nna nk'igwe, Nke hur'ayi n'anya,
 We cheputar'ayi ngbaputa,
-Ayi nd'ọjọ gburu l ikpere;
+Ayi nd'ọjọ gburu I ikpere;
 Biko, gbaghar'ayi njọ nile.
 
 Verse 2
 Ọkpara, Okwu Chineke,
 Onye-ngbaputa, n'Eze-ayi,
-Ayi nd'ọjọ gburu l ikpere;
+Ayi nd'ọjọ gburu I ikpere;
 Wer'amara-Gi zọput'ayi.
 
 Verse 3
 Mọ Nsọ nke neme nkpur'obi
 K'ọ puta na njọ na ọnwu,
-Ayi nd'ọjọ gburu l ikpere;
-Nye ayi ike nke ndu ọhu.
+Ayi nd'ọjọ gburu I ikpere;
+Nye ayi ike nke ndụ ọhu.
 
 Verse 4
 Jehova . . . Nna, Ọkpara, Mọ . . . .
 Chineke, Atọ, nim'Otu,
-Ayi nd'ọjọ gburu l ikpere;
-Gbahara nmehie, nye ayi ndu. Amen.`,
+Ayi nd'ọjọ gburu I ikpere;
+Gbaghara nmehie, nye ayi ndu. Amen.`,
   },
   {
     id: 'abu-4',
@@ -139,20 +159,24 @@ Gbahara nmehie, nye ayi ndu. Amen.`,
     collectionLabel: 'ACPPB Abu (Igbo)',
     language: 'ig',
     themes: ['Trinity', 'praise', 'worship', 'God the Father', 'God the Son', 'Holy Spirit'],
-    scriptureRefs: ['Matthew 28:19', 'Revelation 5:13'],
+    scriptureRefs: ['Revelation 15:4'],
     occasion: ['opening', 'praise'],
     firstLine: "Chineke Nna, nk'igwé,",
-    englishHymnalRefs: 'Cross-ref with A&M Trinity hymns (confirm edition)',
+    englishHymnalRefs: 'Ancient & Modern (confirm edition)',
+    bookSection: "ATỌ NIM'OTU.",
+    bookPage: 3,
+    meter: '6s. 4s.',
+    scriptureQuoteIgbo: '"Onye nagagh-atu ogwu, Onye-nwe-ayi, to kwa aha-Gi?" Nkpughe 15. 4.',
     matchProfile:
       'Father of heaven above — doxology to Father, Son, and Holy Spirit; light, glory, intercession; all creation praising the triune God forever.',
-    verified: false,
+    verified: true,
     lyricsIgbo: `Verse 1
 Chineke Nna, nk'igwé,
-Onye bi nim'ihè,
+Onye bi nim'ihé,
 Ony'ebube.
-Ihè nenwu nk'ukwu,
+Ihè nenwu nk'uku,
 Ihu-n'anya d'ike,
-Ony'anahugh anya,
+Ony'anaugh-anya,
 Ayi neto Gi.
 
 Verse 2
@@ -166,7 +190,7 @@ Ayi neto Gi.
 
 Verse 3
 Chineke, Mọ di nsọ,
-Onye nenye ayi ndu,
+Onye nenye ayi ndụ,
 Onye-nkasi.
 Mọ nke amam-ihe,
 N'ihu-n'anya n'ike,
@@ -175,8 +199,8 @@ Ayi neto Gi.
 
 Verse 4
 Madu nile n'uwa
-Soro usu nk'igwe
-To aha-ha Ya.
+Soro usu nk'igwé
+To aha-Ya.
 Otuto diri Gi,
 Atọ nime Otu,
 Rue mgbe ebigh-ebi,
@@ -185,41 +209,45 @@ Chuku di nsọ. Amen.`,
   {
     id: 'abu-5',
     number: 5,
-    title: 'Chineke Nna zite ngozi',
+    title: 'Chineke Nna zite ngọzi',
     titleEnglish: 'Command Thy blessing from above',
     collection: 'acppb_abu',
     collectionLabel: 'ACPPB Abu (Igbo)',
     language: 'ig',
     themes: ['blessing', 'Trinity', 'worship gathering', 'Word of God', 'Holy Spirit'],
-    scriptureRefs: ['Numbers 6:24-26', 'Matthew 18:20'],
+    scriptureRefs: ['Psalm 133:3'],
     occasion: ['opening', 'service of worship'],
-    firstLine: 'Chineke Nna zite ngozi',
+    firstLine: 'Chineke Nna zite ngọzi',
     englishHymnalRefs: 'Ancient & Modern 492 (typical)',
+    bookSection: "ATỌ NIM'OTU.",
+    bookPage: 4,
+    meter: 'L.M.',
+    scriptureQuoteIgbo: "N'ebe ahu ka Jehova nyere ngọzi ahu iwu. Abu Ọma 133. 3.",
     matchProfile:
       'Command Thy blessing from above — invocation for worship: Father’s blessing on the congregation, Christ’s truth in hearts, Spirit’s power; united praise to the Trinity.',
-    verified: false,
+    verified: true,
     lyricsIgbo: `Verse 1
-Chineke Nna zite ngozi
-Nye ayi, ndi zukọrọ n'ebe a
+Chineke Nna zite ngọzi
+Nye ayi, ndi zukọrọ n'ebe a;
 Le ayi anya n'ihu-n'anya,
-Bu umu nasọpuru Gi.
+Bụ umu nasọpuru Gi.
 
 Verse 2
-Kraist Okpara zite ngozi,
-Kwe k'ayiso uzọ-Gi n'ezie;
+Kraist Ọkpara zite ngọzi,
+Kwe k'ayi so uzọ-Gi n'ezie;
 Me k'Okwu-Gi ba n'obi-ayi,
-Nye ayi ike nke ndu ohu.
+Nye ayi ike nke ndu ọhu.
 
 Verse 3
-Mọ nke di nsọ zite ngozi,
+Mọ nke di nsọ zite ngọzi,
 Wer'ike-Gi mej'ulo nka;
 Mukwasi ndi di um'ala,
 Kpughere ha amara-Gi.
 
 Verse 4
 Chineke, Atọ nim'Otu,
-Nna, na Okpara na Mọ Nsọ,
-Eb'ayi nario I n'otu obi,
+Nna na Ọkpara na Mọ Nsọ,
+Eb'ayi nariọ I n'otu obi,
 K'ayi fegide Gi mgbe nile. Amen.`,
   },
   {
@@ -231,13 +259,18 @@ K'ayi fegide Gi mgbe nile. Amen.`,
     collectionLabel: 'ACPPB Abu (Igbo)',
     language: 'ig',
     themes: ['prayer', 'consecration', 'Holy Spirit', 'personal devotion', 'holiness'],
-    scriptureRefs: ['Psalm 86:6', 'Romans 8:9-11'],
+    scriptureRefs: ['Psalm 63:1'],
     occasion: ['response', 'closing', 'devotion'],
     firstLine: "Nna di nsọ, nur'olum",
-    englishHymnalRefs: 'SS&S / children’s hymn collections (confirm)',
+    englishHymnalRefs: 'Ancient & Modern 160 (A. 160); SS&S 4 (U. 4)',
+    bookSection: "ATỌ NIM'OTU.",
+    bookPage: 4,
+    hymnBookRefs: '(A. 160), (U. 4)',
+    meter: '6.6.6.6.',
+    scriptureQuoteIgbo: 'Chinekem ka I bu, anamachọsi Gi ike. Abu Ọma 63. 1.',
     matchProfile:
       'Holy Father, hear me — personal prayer to Father, Son, and Spirit; desire for nearness, sanctification, and indwelling holiness.',
-    verified: false,
+    verified: true,
     lyricsIgbo: `Verse 1
 Nna di nsọ, nur'olum;
 Gi bu Onye-nzọtam;
@@ -259,7 +292,7 @@ Dọruem nso I, mem nke-Gi.
 Verse 4
 Nsọ, Nsọ, Nsọ,
 Bia, arapukwalam;
-N'obim nke dia ala,
+N'obim nke di ala,
 K'I gebi mgbe nile. Amen.`,
   },
   {
@@ -271,46 +304,50 @@ K'I gebi mgbe nile. Amen.`,
     collectionLabel: 'ACPPB Abu (Igbo)',
     language: 'ig',
     themes: ['holiness', 'light', 'heaven', 'sin', 'grace', 'Holy Spirit'],
-    scriptureRefs: ['1 John 1:5', 'Revelation 21:23', 'Hebrews 12:14'],
+    scriptureRefs: ['1 Timothy 6:16'],
     occasion: ['opening', 'confession', 'meditation'],
     firstLine: "Le, k'obi'ahu gesi di'ocha",
     englishHymnalRefs: 'Ancient & Modern 380 (typical)',
+    bookSection: "ATỌ NIM'OTU.",
+    bookPage: 5,
+    meter: '8.6.8.8.6.',
+    scriptureQuoteIgbo: 'Onye . . . nebi nime ihe nke anapugh ibiaru nso. 1 Tim. 6. 16.',
     matchProfile:
       'Eternal Light — longing for purity before God’s presence; saints in glory; sinner approaching through Christ; way opened by the Spirit and the cross.',
-    verified: false,
+    verified: true,
     lyricsIgbo: `Verse 1
-Le, k'obi'ahu gesi di'ocha
-Nke nabia n'iru-Gi;
-Nelekwaswi ihe nso-Gi,
-Nanuri onu n'obi n'obi'uto
+Le k'obi'ahu gesi di'ọcha
+Nke nabia n'iru Gi;
+Nelekwasi ihe nsọ-Gi,
+Nañuri ọnu n'obi'utọ
 N'iru Gi, Chineke.
 
 Verse 2
 Mọ ndi nọ nsọ och'eze-Gi
 Nenwe ọnu ahu;
 Ọ bu nani ha mara ya,
-Ebe ha namaghkwa nmeheie,
+Ebe ha namagh kwa nmehe,
 Ha adagh kwa ada.
 
 Verse 3
-M'gesi ana, mu b'onye-njọ,
+M'gesi aña, mu b'onye-njọ,
 Ony'obi gbachiri,
 Bia n'iru Ya, Nke di egwu,
-Mọ nkem gesi ana hu Ya:
-Ih'anakegh eke!
+Mọ nkem gesi aña hu Ya:
+Ih'anekègh èkè!
 
 Verse 4
-Uzọ di ayi gesi bilie
-Ba nim'ihe ahu:
-Otu Aja nke zur'ezu,
+Ụzọ di ayi gesi bilie
+Ba nim'Ihè ahu:
+Otu Àjà nke zur'ezu,
 Ike Mọ Nsọ Ony'amara,
 Ọnu-nekwuru-ayi.
 
 Verse 5
 Ọ bu ndia nakwadebe ayi
 Iru ebe-nsọ-Gi,
-Umu ochichiri na njọ
-Gebi n'ihe ebigh-ebi
+Umu ọchichiri na njọ
+Gebi n'ihè ebigh-ebi
 Site n'ihu-n'anya-I. Amen.`,
   },
   {
@@ -326,31 +363,37 @@ Site n'ihu-n'anya-I. Amen.`,
     occasion: ['opening', 'praise'],
     firstLine: "Chuku ebigh-ebi, Ony'amam-ihe",
     englishHymnalRefs: 'Ancient & Modern 377; SS&S 31 (typical)',
+    bookSection: 'CHINEKE NNA.',
+    bookPage: 6,
+    meter: '11.11.11.11.',
+    hymnBookRefs: '11.11.11.11. (II.II.II.II.)',
+    scriptureQuoteIgbo:
+      'Ma Eze nke mgbe nile, Nke anapugh imebi emebi . . . nsopuru na otuto diri Ya . . .',
     matchProfile:
       'Immortal, invisible, God only wise — praise of the unseen eternal God, light inaccessible, hidden in light; human life like grass before His unchanging glory.',
-    verified: false,
+    verified: true,
     lyricsIgbo: `Verse 1
 Chuku ebigh-ebi, Ony'amam-ihe,
-Oke ihè—Gi kpudoro anya-ayi;
+Oke ihè-Gi kpudoro anya-ayi;
 Gi nw'otuto n'ike, Nna di mgbe ochie;
 Ayi neto aha-Gi, Onye nwe nmeri.
 
 Verse 2
 Gi ji ike n'uche, nachi ihe dum;
-ihè—Gi ji nwayọ nenwu n'el'uwa;
+Ihè-Gi ji nwayọ nenwu n'el'uwa;
 Ez'ikpe-Gi kasi ihe dum elu;
-Gi bu Onye nwe ihu-n'anya ukwu.
+Gi bu Onye nwe ihu-n'anya uku.
 
 Verse 3
-Gi nenye ora madu ume na ndu;
+Gi nenye ọra madu ume na ndu;
 Ndu ahu nke I nyere bu ndu n'ezie;
 Ma dika osisi k'ayi nami nkpuru,
-Ayi nanwu nagafe—Ma I nogide.
+Ayi nanwu nagafe—Ma I nọgide.
 
 Verse 4
 Chineke nk'otuto, Nna nke di ngọzi,
-Ndi-m'ozi neto kwa Gi n'elu-igwè;
-K'ayi nye Gi otuto, nna nke bu ihe,
+Ndi-m'ozi neto kwa Gi n'elu-igwe;
+K'ayi nye Gi otuto, Nna nke bu Ihè,
 Chuku ebigh-ebi, Ony'amam-ihe. Amen.`,
   },
   {
@@ -366,20 +409,25 @@ Chuku ebigh-ebi, Ony'amam-ihe. Amen.`,
     occasion: ['opening', 'praise', 'meditation'],
     firstLine: "Chinekem, I d'itu-n'anya",
     englishHymnalRefs: 'Ancient & Modern 169 (typical)',
+    bookSection: 'CHINEKE NNA.',
+    bookPage: 7,
+    meter: 'C.M.',
+    hymnBookRefs: 'C.M.',
+    scriptureQuoteIgbo: "K'ewere kwa obi-gi nile . . . hu Jehova, bú Chineke-gi n'anya.",
     matchProfile:
       'My God, how wonderful Thou art — adoration of God’s beauty, mercy, wisdom, and holiness; angels worship; the soul returns love to the living God.',
-    verified: false,
+    verified: true,
     lyricsIgbo: `Verse 1
 Chinekem, I d'itu-n'anya,
 Ebube-Gi nenwu;
-Och'ebere-Gi di no nma
-Nime oke ihe.
+Och'ebere-Gi di nọ nma
+Nime oke ihè.
 
 Verse 2
 I di egwu, Chineke nkem,
 Nna di ebigh-ebi;
 Ndi-m'ozi nada n'ukwu-Gi,
-Nefe Gi mgbe nile.
+Nefè Gi mgbe nile.
 
 Verse 3
 Iru-Gi mara nma n'ezie;
@@ -391,19 +439,19 @@ Verse 4
 Le, ka m'si atu egwu-Gi,
 Chineke nke di ndu;
 Nefe Gi n'ezi ncheghari
-N'olil'anya nk'igwe.
+N'olil'anya nk'igwé.
 
 Verse 5
 Ka m'hu Gi n'anya, Chineke,
 Gi, Onye di ike,
-N'ihi na I nario n'akam
+N'ihi na I nariọ n'akam
 Ihu-n'anya nk'obim.
 
 Verse 6
 Nna nke Jisus, Nna nk'amara,
 Ida n'ir'oche-Gi,
 Na ilekwasi iru-Gi,
-B'onu ebigh-ebi. Amen.`,
+B'ọnụ ebigh-ebi. Amen.`,
   },
   {
     id: 'abu-10',
@@ -414,13 +462,17 @@ B'onu ebigh-ebi. Amen.`,
     collectionLabel: 'ACPPB Abu (Igbo)',
     language: 'ig',
     themes: ['goodness of God', 'creation', 'praise', 'thanksgiving', 'nature'],
-    scriptureRefs: ['Psalm 107:1', 'Psalm 33:5', 'Genesis 1'],
+    scriptureRefs: ['Psalm 33:5', 'Genesis 1'],
     occasion: ['opening', 'praise', 'thanksgiving'],
     firstLine: "Chineke di nma; n'el'igwé",
     englishHymnalRefs: 'Ancient & Modern 683 (typical)',
+    bookSection: 'CHINEKE NNA.',
+    bookPage: 7,
+    meter: 'L.M.',
+    scriptureQuoteIgbo: "Uwa juputara n'ebere Jehova.",
     matchProfile:
       'Yes, God is good; in earth and sky — creation declares God’s goodness: sun, stars, birds, rain, hills and sea; all creatures and people praise; goodness through Jesus Christ.',
-    verified: false,
+    verified: true,
     lyricsIgbo: `Verse 1
 Chineke di nma; n'el'igwé,
 N'akuku nile nke uwa,
@@ -460,19 +512,23 @@ Ka ayi gasi, Chuku di nma! Amen.`,
   {
     id: 'abu-11',
     number: 11,
-    title: "Chuk' Ony' Okike",
+    title: "Chuk'Ony'Okike",
     titleEnglish: 'God, who made the earth',
     collection: 'acppb_abu',
     collectionLabel: 'ACPPB Abu (Igbo)',
     language: 'ig',
     themes: ['creation', 'providence', 'Calvary', 'heaven', 'personal trust'],
-    scriptureRefs: ['Genesis 1', 'John 3:16', 'Psalm 121'],
+    scriptureRefs: ['Genesis 1', 'John 3:16', '2 Kings 4:13'],
     occasion: ['opening', 'all-age', 'thanksgiving'],
-    firstLine: "Chuk' Ony' Okike",
+    firstLine: "Chuk'Ony'Okike",
     englishHymnalRefs: 'Related to “All things bright and beautiful” / creation hymns (confirm)',
+    bookSection: 'CHINEKE NNA.',
+    bookPage: 8,
+    meter: '5.6.6.4.',
+    scriptureQuoteIgbo: 'Le, i werewo nchegbu a nile chegbu onwe-gi bayere ayi.',
     matchProfile:
       'God, who made the earth — Creator of heaven, sun, forest, day and night; gave His Son at Calvary; prayer for God’s care on earth and in heaven.',
-    verified: false,
+    verified: true,
     lyricsIgbo: `Verse 1
 Chuk' Ony' Okike
 Nke uwa n' el' igwé,
@@ -516,9 +572,14 @@ Lekotaram! Amen.`,
     occasion: ['opening', 'offertory', 'praise'],
     firstLine: "Abù nke ndi-m' ozi nad à",
     englishHymnalRefs: 'Ancient & Modern 550 (typical)',
+    bookSection: 'CHINEKE NNA.',
+    bookPage: 9,
+    meter: '8.5.8.5.8.4.3.',
+    scriptureQuoteIgbo:
+      "Gi onwe-gi kère ihe nile, ọ bu kwa n'ihi ọchichọ-Gi ka ha diri, ka ekè-kwa-ra ha èkè.",
     matchProfile:
       'Angel voices, ever singing — heavenly worship unceasing; earth joins with heart, voice, and gifts; praise to Father, Son, and Holy Spirit.',
-    verified: false,
+    verified: true,
     lyricsIgbo: `Verse 1
 Abù nke ndi-m' ozi nad à
 N' och' eze-I mgbe dum;
@@ -577,9 +638,11 @@ Nenye Gi. Amen.`,
     occasion: ['opening', 'response', 'meditation'],
     firstLine: "Aha Jisus di ok' utọ",
     englishHymnalRefs: 'Ancient & Modern 148; SS&S (typical)',
+    bookSection: 'CHINEKE OKPARA.',
+    bookPage: 10,
     matchProfile:
       'How sweet the name of Jesus sounds — the name that soothes grief, heals the broken heart, refuge and treasure; Jesus as Lord, life, and way; praise until death.',
-    verified: false,
+    verified: true,
     lyricsIgbo: `Verse 1
 Aha Jisus di ok' utọ
 Na nti onye kwere;
@@ -619,19 +682,24 @@ Nye obim ndu n'onwu. Amen.`,
   {
     id: 'abu-14',
     number: 14,
-    title: "N' Aha nke Kraist Jisu",
-    titleEnglish: 'In the Name of Christ Jesus',
+    title: "N'Aha nke Kraist Jisus",
+    titleEnglish: 'At the name of Jesus.',
     collection: 'acppb_abu',
     collectionLabel: 'ACPPB Abu (Igbo)',
     language: 'ig',
     themes: ['Jesus', 'name of Christ', 'kingship', 'holiness', 'mission'],
     scriptureRefs: ['Philippians 2:9-11', 'Colossians 3:17'],
     occasion: ['opening', 'response', 'mission'],
-    firstLine: "N' Aha nke Kraist Jisu",
-    englishHymnalRefs: 'Often paired with “At the name of Jesus” (confirm A&M / SS&S number)',
+    firstLine: "N'Aha nke Kraist Jisus",
+    englishHymnalRefs: 'At the name of Jesus (A&M / SS&S)',
+    bookSection: 'CHINEKE OKPARA.',
+    bookPage: 11,
+    hymnBookRefs: '(u. 61 (N.H.))',
+    meter: '6.5.6.5.D.',
+    scriptureQuoteIgbo: "N'Aha Jisus ka ikpere nile we gbue n'ala.",
     matchProfile:
-      'In the Name of Christ Jesus — every knee and tongue confess Christ as Lord; honour the name; make Jesus King in the heart; crown Him Lord of all.',
-    verified: false,
+      'At the name of Jesus — every knee and tongue confess Christ as Lord; honour the name; make Jesus King in the heart; crown Him Lord of all.',
+    verified: true,
     lyricsIgbo: `Verse 1
 N' Aha nke Kraist Jisu
 K'ọra gb' ikpere,
@@ -695,9 +763,13 @@ Eze nk' otuto. Amen`,
     occasion: ['opening', 'response', 'teaching'],
     firstLine: 'Gi bu Uzo—Ọ bu na Gi',
     englishHymnalRefs: 'Ancient & Modern 185 (typical)',
+    bookSection: 'CHINEKE OKPARA.',
+    bookPage: 12,
+    meter: 'C.M.',
+    scriptureQuoteIgbo: 'Mu onwem bu uzọ, na ezi-okwu, na ndu.',
     matchProfile:
       'Thou art the Way, to Thee alone — Christ as Way, Truth, and Life; access to the Father only through Him; Word purifies; resurrection power over death.',
-    verified: false,
+    verified: true,
     lyricsIgbo: `Verse 1
 Gi bu Uzo—Ọ bu na Gi
 K' ayi nagbanari njọ;
@@ -735,9 +807,13 @@ N' onụ ebigh-ebi. Amen.`,
     occasion: ['response', 'communion', 'assurance'],
     firstLine: 'Jisus, uwem di ebube',
     englishHymnalRefs: 'Ancient & Modern 85; SS&S (typical)',
+    bookSection: 'CHINEKE OKPARA.',
+    bookPage: 12,
+    meter: 'L.M.',
+    scriptureQuoteIgbo: 'Jehova bu ezi omume-ayi.',
     matchProfile:
       'Jesus, Thy blood and righteousness — clothed in Christ’s merit; confidence before God; victory over death; gospel proclaimed to the world.',
-    verified: false,
+    verified: true,
     lyricsIgbo: `Verse 1
 Jisus, uwem di ebube
 B' ez' omume n' obara-Gi;
@@ -775,3 +851,14 @@ Ka okwu nke-Gi gbasa kwa,
 Meri onwu na oku-mo. Amen.`,
   },
 ]
+
+/** Full Abu catalogue (1–400). */
+export const acppbAbuCatalog: HymnCatalogEntry[] = enrichAbuCatalog([
+  ...acppbAbuCatalog1to16,
+  ...acppbAbuCatalog17to66,
+  ...acppbAbuCatalog67to128,
+  ...acppbAbuCatalog129to175,
+  ...acppbAbuCatalog176to224,
+  ...acppbAbuCatalog225to300,
+  ...acppbAbuCatalog301to400,
+])

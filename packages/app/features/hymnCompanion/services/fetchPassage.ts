@@ -1,4 +1,7 @@
-import { normalizeBibleReference } from '../data/lectionary/normalizeReference'
+import {
+  normalizeBibleReference,
+  resolveGuideReferenceForFetch,
+} from '../data/lectionary/normalizeReference'
 import {
   getCachedPassage,
   setCachedPassage,
@@ -42,10 +45,13 @@ export function bibleApiPathForReference(reference: string): string {
 }
 
 function cacheKeyFor(reference: string): string {
-  return normalizeBibleReference(reference).toLowerCase()
+  return resolveGuideReferenceForFetch(reference).toLowerCase()
 }
 
-function fromCacheRecord(record: CachedPassageRecord, delivery: PassageTextDelivery): PassageTextResult {
+function fromCacheRecord(
+  record: CachedPassageRecord,
+  delivery: PassageTextDelivery
+): PassageTextResult {
   return {
     text: record.text,
     verses: record.verses ?? [],
@@ -96,12 +102,17 @@ async function parsePassageResponse(
     delivery: 'network',
   }
   if (!result.text) {
-    throw new Error('This reference returned no verse text. Try a shorter range or check the reference.')
+    throw new Error(
+      'This reference returned no verse text. Try a shorter range or check the reference.'
+    )
   }
   return result
 }
 
-async function fetchFromNetworkOnce(reference: string, useTranslation: boolean): Promise<PassageTextResult> {
+async function fetchFromNetworkOnce(
+  reference: string,
+  useTranslation: boolean
+): Promise<PassageTextResult> {
   const path = bibleApiPathForReference(reference)
   const query = useTranslation ? `?translation=${PASSAGE_TRANSLATION_ID}` : ''
   const url = `https://bible-api.com/${path}${query}`
@@ -144,7 +155,10 @@ async function fetchFromNetwork(reference: string): Promise<PassageTextResult> {
   throw lastError instanceof Error ? lastError : new Error('Could not reach the Scripture service.')
 }
 
-async function persistAndReturn(key: string, result: PassageTextResult): Promise<PassageTextResult> {
+async function persistAndReturn(
+  key: string,
+  result: PassageTextResult
+): Promise<PassageTextResult> {
   await setCachedPassage(key, {
     text: result.text,
     verses: result.verses,
@@ -177,13 +191,13 @@ export type FetchPassageOptions = {
 
 /**
  * Loads passage text: WEB over the network when possible, with on-device cache for speed and offline use.
- * Fellowship schedule references are unchanged — only display text is fetched here.
+ * Daily Bread Guide references are normalized here before fetch and cache.
  */
 export async function fetchPassageText(
   rawReference: string,
   options?: FetchPassageOptions
 ): Promise<PassageTextResult> {
-  const reference = normalizeBibleReference(rawReference)
+  const reference = resolveGuideReferenceForFetch(rawReference)
   if (!reference) {
     throw new Error('Enter a Bible reference (for example Romans 12:1-2).')
   }

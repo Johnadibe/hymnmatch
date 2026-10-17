@@ -2,9 +2,9 @@
  * Full-bleed bright splash PNG as the only Android launch screen.
  * PNG lives in drawable-nodpi so Android does not density-scale it darker/blurrier.
  */
-import fs from 'fs'
-import path from 'path'
-import { fileURLToPath } from 'url'
+import fs from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const expoRoot = path.join(__dirname, '..')
@@ -59,20 +59,33 @@ const drawableDir = path.join(androidRes, 'drawable')
 const nodpiDir = path.join(androidRes, 'drawable-nodpi')
 fs.mkdirSync(drawableDir, { recursive: true })
 fs.mkdirSync(nodpiDir, { recursive: true })
-fs.writeFileSync(path.join(drawableDir, 'splashscreen_full_bleed_background.xml'), splashBackgroundXml)
+fs.writeFileSync(
+  path.join(drawableDir, 'splashscreen_full_bleed_background.xml'),
+  splashBackgroundXml
+)
 fs.writeFileSync(path.join(drawableDir, 'splashscreen_empty.xml'), emptySplashIconXml)
 fs.copyFileSync(splashSource, path.join(nodpiDir, 'splashscreen_mark.png'))
 
-for (const folder of ['drawable', 'drawable-mdpi', 'drawable-hdpi', 'drawable-xhdpi', 'drawable-xxhdpi', 'drawable-xxxhdpi', 'drawable-nodpi']) {
+for (const folder of [
+  'drawable',
+  'drawable-mdpi',
+  'drawable-hdpi',
+  'drawable-xhdpi',
+  'drawable-xxhdpi',
+  'drawable-xxxhdpi',
+  'drawable-nodpi',
+]) {
   const scaled = path.join(androidRes, folder, 'splashscreen_full_bleed.png')
   if (fs.existsSync(scaled)) fs.unlinkSync(scaled)
 }
 
 let styles = fs.readFileSync(stylesPath, 'utf8')
-const next = styles.replace(/<style name="Theme\.App\.SplashScreen"[\s\S]*?<\/style>/, splashStyleBlock)
+const next = styles.replace(
+  /<style name="Theme\.App\.SplashScreen"[\s\S]*?<\/style>/,
+  splashStyleBlock
+)
 if (next === styles) {
   console.error('patch-android-splash: Theme.App.SplashScreen block not found')
   process.exit(1)
 }
 fs.writeFileSync(stylesPath, next)
-console.log('Patched Android splash to bright gradient with a circular seal')

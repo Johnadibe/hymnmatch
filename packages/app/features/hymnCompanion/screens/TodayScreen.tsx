@@ -8,10 +8,7 @@ import { ErrorPanel } from '../components/ErrorPanel'
 import { HymnInput } from '../components/HymnInput'
 import { LoadingBlock } from '../components/LoadingBlock'
 import { PreparationDateBar } from '../components/PreparationDateBar'
-import {
-  ReadingSlotPicker,
-  type ReadingPickerValue,
-} from '../components/ReadingSlotPicker'
+import { ReadingSlotPicker, type ReadingPickerValue } from '../components/ReadingSlotPicker'
 import { ScripturePassageText } from '../components/ScripturePassageText'
 import { SurfaceCard } from '../components/SurfaceCard'
 import {
@@ -22,23 +19,27 @@ import {
 } from '../data/lectionary/fellowshipLectionary'
 import {
   formatPreparationShort,
+  formatWeekdayGuide,
   getDefaultPreparationDate,
   isSameCalendarDay,
   startOfLocalDay,
 } from '../data/lectionary/preparationDate'
+import { defaultSlotForDate } from '../data/lectionary/readingRules'
 import type { FellowshipLectionaryDay } from '../data/lectionary/types'
 import { fetchPassageText } from '../services/fetchPassage'
 import { explainLoadPassageError } from '../utils/friendlyErrors'
 import { TYPE } from '../constants'
 import type { DailyReading } from '../types'
 
-const defaultPicker: ReadingPickerValue = { slot: 'bsg', index: 0 }
+function defaultPickerForDate(date: Date): ReadingPickerValue {
+  return { slot: defaultSlotForDate(date), index: 0 }
+}
 
 export function TodayScreen() {
   const router = useRouter()
   const [selectedDate, setSelectedDate] = useState(getDefaultPreparationDate)
-  const [scheduleDay, setScheduleDay] = useState<FellowshipLectionaryDay | null>(() =>
-    getFellowshipDay(getDefaultPreparationDate()) ?? null
+  const [scheduleDay, setScheduleDay] = useState<FellowshipLectionaryDay | null>(
+    () => getFellowshipDay(getDefaultPreparationDate()) ?? null
   )
   const [reading, setReading] = useState<DailyReading | null>(null)
   const [textLoading, setTextLoading] = useState(true)
@@ -46,7 +47,9 @@ export function TodayScreen() {
   const [themeHint, setThemeHint] = useState('')
   const [customReference, setCustomReference] = useState('')
   const [finding, setFinding] = useState(false)
-  const [picker, setPicker] = useState<ReadingPickerValue>(defaultPicker)
+  const [picker, setPicker] = useState<ReadingPickerValue>(() =>
+    defaultPickerForDate(getDefaultPreparationDate())
+  )
   const loadSeq = useRef(0)
 
   const loadReading = useCallback(
@@ -99,8 +102,8 @@ export function TodayScreen() {
         const range = getLectionaryDateRange()
         const hint = range
           ? `Readings are available ${range.start} through ${range.end}. Pick a date from the calendar.`
-          : 'No lectionary loaded.'
-        setError(`No fellowship reading for this date. ${hint}`)
+          : 'No Daily Bread Guide loaded.'
+        setError(`No Daily Bread reading for this date. ${hint}`)
         setReading(null)
         setTextLoading(false)
         return
@@ -115,13 +118,13 @@ export function TodayScreen() {
       const skeleton: DailyReading = {
         date: formatDateKey(targetDate),
         reference: chosen.reference,
-        title: `${day.marketDay} · ${day.dayLabel}`,
-        sourceLabel: 'ACPPB Daily Guilde Reading',
+        title: `${day.marketDay} · ${formatWeekdayGuide(targetDate)}`,
+        sourceLabel: 'ACPPB Daily Bread Guide',
         passages: [chosen.reference],
         text: '',
         fellowship: {
           marketDay: day.marketDay,
-          dayLabel: day.dayLabel,
+          dayLabel: formatWeekdayGuide(targetDate),
           slot: chosen.slot,
           bsg: day.bsg,
           mp: day.mp,
@@ -155,15 +158,16 @@ export function TodayScreen() {
   )
 
   useEffect(() => {
-    void loadReading({ forDate: selectedDate, pickerValue: defaultPicker })
+    void loadReading({ forDate: selectedDate, pickerValue: defaultPickerForDate(selectedDate) })
     // eslint-disable-next-line react-hooks/exhaustive-deps -- mount
   }, [])
 
   const onPreparationDateChange = (date: Date) => {
     setSelectedDate(date)
-    setPicker(defaultPicker)
+    const nextPicker = defaultPickerForDate(date)
+    setPicker(nextPicker)
     setCustomReference('')
-    void loadReading({ forDate: date, pickerValue: defaultPicker })
+    void loadReading({ forDate: date, pickerValue: nextPicker })
   }
 
   const onPickerChange = (value: ReadingPickerValue) => {
@@ -196,7 +200,7 @@ export function TodayScreen() {
   return (
     <AppScreen
       title={screenTitle}
-      subtitle="Choose the service date and the reading you will preach from."
+      subtitle="Daily Bread Guide: choose the date and reading you will preach from."
       headerExtra={
         <Button
           size="$3"
@@ -306,7 +310,7 @@ export function TodayScreen() {
             color="$color10"
             {...TYPE.bodySmall}
           >
-            Select a date with a fellowship reading.
+            Select a date from the Daily Bread Guide.
           </Text>
         ) : null}
       </SurfaceCard>

@@ -105,6 +105,39 @@ export function normalizeBibleReference(raw: string): string {
   return ref.trim()
 }
 
+/** Fix booklet cross-chapter ranges like `3:13-4-6` → `3:13-4:6` after book expansion. */
+function fixCrossChapterVerseRange(ref: string): string {
+  return ref.replace(/(\d+:\d+)-(\d+)-(\d+)\b/g, '$1-$2:$3')
+}
+
+/**
+ * Turn a Daily Bread Guide line (abbreviations, `&`, `or`, commas) into a bible-api.com query.
+ * Display strings in the guide stay unchanged; use this only for fetching text.
+ */
+export function resolveGuideReferenceForFetch(raw: string): string {
+  let ref = raw.trim()
+  if (!ref) return ref
+
+  if (/\s+or\s+/i.test(ref)) {
+    const orParts = ref.split(/\s+or\s+/i)
+    ref = orParts[orParts.length - 1]!.trim()
+    const bookPrefix = raw.match(/^([1-3]?\s?[A-Za-z]+(?:\.)?)/)?.[1]
+    if (bookPrefix && !/^\d/.test(ref)) {
+      ref = `${bookPrefix} ${ref}`.replace(/\.\s+/, '. ')
+    }
+  }
+
+  if (ref.includes(',')) {
+    ref = ref.split(',')[0]!.trim()
+  }
+
+  ref = ref.replace(/\s*&\s*/g, '-')
+
+  ref = normalizeBibleReference(ref)
+  ref = fixCrossChapterVerseRange(ref)
+  return ref
+}
+
 export function splitReadingList(field: string): string[] {
   return field
     .split(';')

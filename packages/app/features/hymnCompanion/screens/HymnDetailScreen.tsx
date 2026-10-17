@@ -5,10 +5,12 @@ import { HymnTextArea } from '../components/HymnInput'
 import { Star } from '@tamagui/lucide-icons'
 import { AppScreen } from '../components/AppScreen'
 import { SurfaceCard } from '../components/SurfaceCard'
+import { slotLabel } from '../data/lectionary/readingRules'
 import { getHymnById } from '../data/hymnCatalog'
 import { getMatchSession } from '../storage/sessionReading'
 import { savePreparation } from '../storage/savedPreparations'
 import { TYPE } from '../constants'
+import { formatLyricsForDisplay } from '../utils/formatLyricsDisplay'
 import type { SavedPreparation } from '../types'
 
 export function HymnDetailScreen() {
@@ -21,6 +23,10 @@ export function HymnDetailScreen() {
   const [sermonTitle, setSermonTitle] = useState('')
   const [dateKey, setDateKey] = useState('')
   const [sermonThemes, setSermonThemes] = useState<string[]>([])
+  const [recommendedIds, setRecommendedIds] = useState<string[]>([])
+  const [passageText, setPassageText] = useState('')
+  const [passageTranslation, setPassageTranslation] = useState('')
+  const [dailyBreadSlot, setDailyBreadSlot] = useState('')
   const [notes, setNotes] = useState('')
   const [saved, setSaved] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -34,6 +40,11 @@ export function HymnDetailScreen() {
       setDateKey(session.reading.date)
       setSermonThemes(session.sermonThemes ?? [])
       setNotes(session.themeHint)
+      setRecommendedIds(session.recommendations?.map((r) => r.hymnId) ?? [])
+      setPassageText(session.reading.text ?? '')
+      setPassageTranslation(session.reading.translationName ?? '')
+      const slot = session.reading.fellowship?.slot
+      setDailyBreadSlot(slot ? slotLabel(slot) : '')
     })()
   }, [])
 
@@ -64,6 +75,10 @@ export function HymnDetailScreen() {
         sermonTheme: notes || sermonThemes.join(', ') || sermonTitle,
         notes,
         selectedHymnIds: [hymn.id],
+        recommendedHymnIds: recommendedIds.length ? recommendedIds : undefined,
+        passageText: passageText || undefined,
+        passageTranslation: passageTranslation || undefined,
+        dailyBreadSlot: dailyBreadSlot || undefined,
         createdAt: new Date().toISOString(),
       }
       await savePreparation(entry)
@@ -91,7 +106,7 @@ export function HymnDetailScreen() {
             {...TYPE.scripture}
             color="$color11"
           >
-            {hymn.lyricsIgbo}
+            {formatLyricsForDisplay(hymn.lyricsIgbo)}
           </Text>
         </SurfaceCard>
       ) : hymn.firstLine ? (
@@ -165,7 +180,7 @@ export function HymnDetailScreen() {
           value={notes}
           onChangeText={setNotes}
           minHeight={100}
-          placeholder="Why this hymn supports today's message…"
+          placeholder="Why this hymn supports today's message..."
         />
       </SurfaceCard>
 
@@ -176,14 +191,15 @@ export function HymnDetailScreen() {
         disabled={saving}
         onPress={() => void onSave()}
       >
-        {saved ? 'Saved offline' : saving ? 'Saving…' : 'Save preparation'}
+        {saved ? 'Saved offline' : saving ? 'Saving...' : 'Save preparation'}
       </Button>
 
       <Text
         {...TYPE.caption}
         color="$color9"
       >
-        Suggestions use the English equivalent above; verify Abu {hymn.number} with your hymn leader before Sunday.
+        Suggestions use the English equivalent above; verify Abu {hymn.number} with your hymn leader
+        before Sunday.
       </Text>
     </AppScreen>
   )

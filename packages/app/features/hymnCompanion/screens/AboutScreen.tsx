@@ -13,7 +13,7 @@ export function AboutScreen() {
   return (
     <AppScreen
       title="About"
-      subtitle="HymnMatch · Sermon & hymn companion"
+      subtitle="HymnMatch for ACPPB: sermon and hymn companion"
     >
       <SurfaceCard accent="green">
         <Text
@@ -21,7 +21,7 @@ export function AboutScreen() {
           fontSize={17}
           color="$color12"
         >
-          All Christian Practical Praying Band, Int&apos;l
+          All Christian Practical Praying Band (ACPPB)
         </Text>
         <Text
           {...TYPE.bodySmall}
@@ -29,20 +29,41 @@ export function AboutScreen() {
           color="$color10"
           marginTop="$1"
         >
-          ACPPB · Since 1957
+          International. Est. 1957
         </Text>
         <Text
           {...TYPE.body}
           color="$color11"
           marginTop="$3"
         >
-          ACPPB is a ministry committed to practical prayer, faithful exposition of Scripture,
-          and worship that honours Christ. HymnMatch was prepared to serve preachers and worship
-          leaders within this fellowship as they prepare for ministry.
+          ACPPB is a prayer and Scripture ministry: practical intercession, faithful teaching of
+          God&apos;s Word, and worship that honours Christ. Members meet for prayer, study the Bible
+          together, and serve the Lord in their churches and communities. HymnMatch was built for
+          this ministry to help preachers and worship leaders prepare with the Daily Bread Guide and
+          the Igbo Abu (ACPPB hymnbook).
         </Text>
       </SurfaceCard>
 
       <SurfaceCard accent="blue">
+        <Text
+          fontWeight="700"
+          fontSize={16}
+        >
+          Our Daily Bread Guide
+        </Text>
+        <Text
+          {...TYPE.body}
+          color="$color11"
+        >
+          The printed Daily Bread Guide schedules Bible readings for each day: daily column, Morning
+          Prayer, and Evening Prayer where provided. This app loads those references from the 2026
+          guide
+          {range ? ` (${range.start} through ${range.end})` : ''}, fetches the passage text for
+          preparation, and helps you choose Abu that fit the message.
+        </Text>
+      </SurfaceCard>
+
+      <SurfaceCard>
         <Text
           fontWeight="700"
           fontSize={16}
@@ -53,9 +74,9 @@ export function AboutScreen() {
           {...TYPE.body}
           color="$color11"
         >
-          HymnMatch helps you move from the day&apos;s Scripture to hymns that support the central
-          message of your sermon. It is a preparation tool: your judgment, the hymnbook, and the
-          leading of the Spirit remain primary.
+          HymnMatch connects your Daily Bread passage to suggested hymns from Abu 1 to 400. It
+          supports your judgment; it does not replace prayer, the physical hymnbook, or the leading
+          of the Holy Spirit.
         </Text>
       </SurfaceCard>
 
@@ -67,10 +88,11 @@ export function AboutScreen() {
         >
           In this app
         </Text>
-        <Bullet text="ACPPB reading schedule on your device, including daily, morning, and evening columns where your booklet provides them." />
-        <Bullet text="Passage text for preparation (World English Bible), with verses stored on the phone after first load." />
-        <Bullet text="Four hymn suggestions per sermon text, with brief reasons tied to theme rather than keywords alone." />
-        <Bullet text="Saved preparations you can revisit without a connection." />
+        <Bullet text="Daily Bread Guide readings on your device, with Morning and Evening Prayer columns." />
+        <Bullet text="Scripture text (World English Bible) cached on the phone for offline use after first load." />
+        <Bullet text="Abu suggestions using Igbo titles, lyrics, and scripture lines, plus optional online matching." />
+        <Bullet text="Saved preparations with passage text and your chosen hymn, available offline." />
+        <Bullet text="Songs of Praise: all 597 fellowship songs with fast search and full lyrics offline." />
       </SurfaceCard>
 
       <SurfaceCard>
@@ -83,20 +105,29 @@ export function AboutScreen() {
         </Text>
         <WorkflowStep
           n={1}
-          title="Select the service date and reading"
-          body="Open Word, choose the day you will preach, and confirm the text from your fellowship schedule."
+          title="Open Word and pick your date"
+          body="Choose the service day and the Daily Bread / Morning / Evening line you will preach from."
         />
         <WorkflowStep
           n={2}
-          title="Review the passage and theme"
-          body="Read the Scripture in the app and, if helpful, note the main message you intend to preach."
+          title="Read and note the theme"
+          body="Review the passage on screen (or from cache offline) and add your central theme if helpful."
         />
         <WorkflowStep
           n={3}
-          title="Choose hymns and save"
-          body="Request matching hymns, review the suggestions against your hymnbook, and save your preparation for service day."
+          title="Match Abu and save"
+          body="Find matching hymns, compare with your hymnbook, and save your preparation for service day."
         />
       </SurfaceCard>
+
+      <Text
+        {...TYPE.caption}
+        color="$color9"
+        textAlign="center"
+        marginTop="$2"
+      >
+        Version {appVersion}
+      </Text>
     </AppScreen>
   )
 }

@@ -11,7 +11,7 @@ type HymnLibrarySearchFieldProps = {
 export function HymnLibrarySearchField({
   value,
   onChangeText,
-  placeholder = 'Search Abu number, Igbo or English title…',
+  placeholder = 'Abu #, Igbo lyrics, or English...',
 }: HymnLibrarySearchFieldProps) {
   return (
     <XStack

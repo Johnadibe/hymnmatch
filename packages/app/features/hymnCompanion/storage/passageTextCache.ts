@@ -30,9 +30,7 @@ async function writeStore(store: CacheStore): Promise<void> {
     await AsyncStorage.setItem(CACHE_KEY, JSON.stringify(store))
     return
   }
-  const sorted = keys.sort(
-    (a, b) => store[a]!.fetchedAt.localeCompare(store[b]!.fetchedAt)
-  )
+  const sorted = keys.sort((a, b) => store[a]!.fetchedAt.localeCompare(store[b]!.fetchedAt))
   const trimmed: CacheStore = {}
   for (const key of sorted.slice(-MAX_ENTRIES)) {
     trimmed[key] = store[key]!

@@ -39,12 +39,7 @@ export function LectionaryDateSheet({
           onPress={() => onOpenChange(false)}
           accessibilityLabel="Close date list"
         />
-        <View
-          style={[
-            styles.sheet,
-            { paddingBottom: Math.max(insets.bottom, 16) },
-          ]}
-        >
+        <View style={[styles.sheet, { paddingBottom: Math.max(insets.bottom, 16) }]}>
           <YStack
             padding="$4"
             gap="$3"
@@ -74,7 +69,7 @@ export function LectionaryDateSheet({
               fontSize={13}
               color="$color10"
             >
-              Fellowship lectionary dates only.
+              Dates from the ACPPB Daily Bread Guide (2026 edition).
             </Text>
             <FlatList
               data={rows}
@@ -117,9 +112,7 @@ function DateRow({
         pressed ? styles.rowPressed : null,
       ]}
     >
-      <RNText
-        style={[styles.rowTitle, active ? styles.rowTitleActive : null]}
-      >
+      <RNText style={[styles.rowTitle, active ? styles.rowTitleActive : null]}>
         {formatPreparationHeading(parseDateKey(day.date))}
       </RNText>
       <RNText style={styles.rowSub}>

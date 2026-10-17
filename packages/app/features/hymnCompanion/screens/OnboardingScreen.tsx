@@ -12,13 +12,13 @@ const slides = [
   {
     icon: BookOpen,
     title: 'Start with Scripture',
-    body: 'See today’s passage or enter your sermon text. The app never replaces your discernment; it supports it.',
+    body: 'Open the Daily Bread Guide for today’s Scripture, or enter a reference. The app supports your discernment; it does not replace it.',
     colors: ['#335CFF', '#628DFF'] as const,
   },
   {
     icon: ListMusic,
     title: 'Match the message',
-    body: 'We suggest hymns whose themes fit your sermon’s central message, not random keyword matches.',
+    body: 'We suggest Abu whose themes fit your sermon message, using Igbo text and Scripture, not random keywords.',
     colors: ['#2A4AD4', '#1FC16B'] as const,
   },
   {

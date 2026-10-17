@@ -1,12 +1,9 @@
 import { Button, PressPresets, Text, XStack, YStack } from '@my/ui'
 import type { FellowshipLectionaryDay, ReadingSlot } from '../data/lectionary/types'
-import {
-  isBsgRequiredDay,
-  isMpEpChoiceDay,
-  slotLabel,
-} from '../data/lectionary/readingRules'
+import { isBsgRequiredDay, isMpEpChoiceDay, slotLabel } from '../data/lectionary/readingRules'
 import { listSelectableReferences } from '../data/lectionary/fellowshipLectionary'
 import { TYPE } from '../constants'
+import { ScheduleChip } from './ScheduleChip'
 
 export type ReadingPickerValue = {
   slot: ReadingSlot
@@ -18,30 +15,6 @@ type ReadingSlotPickerProps = {
   day: FellowshipLectionaryDay
   value: ReadingPickerValue
   onChange: (value: ReadingPickerValue) => void
-}
-
-function SlotChip({
-  active,
-  label,
-  onPress,
-}: {
-  active: boolean
-  label: string
-  onPress: () => void
-}) {
-  return (
-    <Button
-      size="$3"
-      {...PressPresets.filter}
-      backgroundColor={active ? '$blue9' : '$backgroundStrong'}
-      color={active ? 'white' : '$color11'}
-      borderWidth={1}
-      borderColor={active ? '$blue9' : '$borderColor'}
-      onPress={onPress}
-    >
-      {label}
-    </Button>
-  )
 }
 
 function linesForSlot(day: FellowshipLectionaryDay, slot: ReadingSlot): string[] {
@@ -64,9 +37,9 @@ export function ReadingSlotPicker({ date, day, value, onChange }: ReadingSlotPic
         color="$color10"
       >
         {bsgRequired
-          ? 'This day uses the daily fellowship reading below.'
+          ? 'This day uses the Daily Bread column below.'
           : choiceDay
-            ? 'Choose which column from the schedule you are preaching from.'
+            ? 'Choose Morning Prayer, Evening Prayer, or Daily Bread from the guide.'
             : 'Select the reading you are preparing from.'}
       </Text>
 
@@ -75,20 +48,20 @@ export function ReadingSlotPicker({ date, day, value, onChange }: ReadingSlotPic
           flexWrap="wrap"
           gap="$2"
         >
-          <SlotChip
+          <ScheduleChip
             active={value.slot === 'bsg'}
-            label="Daily"
+            label="Daily Bread"
             onPress={() => onChange({ slot: 'bsg', index: 0 })}
           />
           {day.mp.length > 0 ? (
-            <SlotChip
+            <ScheduleChip
               active={value.slot === 'mp'}
               label="Morning"
               onPress={() => onChange({ slot: 'mp', index: 0 })}
             />
           ) : null}
           {day.ep.length > 0 ? (
-            <SlotChip
+            <ScheduleChip
               active={value.slot === 'ep'}
               label="Evening"
               onPress={() => onChange({ slot: 'ep', index: 0 })}

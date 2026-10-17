@@ -11,14 +11,12 @@
     "splash": {
       "image": "./assets/splash-full.png",
       "resizeMode": "cover",
-      "backgroundColor": "#2F6BFF"
+      "backgroundColor": "#5A8FFF"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": [
-      "assets/**/*"
-    ],
+    "assetBundlePatterns": ["assets/**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.hymnmatch.app",
@@ -44,16 +42,16 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#2F6BFF",
+          "backgroundColor": "#5A8FFF",
           "image": "./assets/splash-full.png",
           "resizeMode": "cover",
           "android": {
-            "backgroundColor": "#2F6BFF",
+            "backgroundColor": "#5A8FFF",
             "image": "./assets/splash-full.png",
             "resizeMode": "cover"
           },
           "ios": {
-            "backgroundColor": "#2F6BFF",
+            "backgroundColor": "#5A8FFF",
             "image": "./assets/splash-full.png",
             "resizeMode": "cover"
           }

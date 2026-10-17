@@ -1,5 +1,5 @@
 import lectionary from './lectionary2026.json'
-import { normalizeBibleReference } from './normalizeReference'
+import { resolveGuideReferenceForFetch } from './normalizeReference'
 import { defaultSlotForDate, slotLabel } from './readingRules'
 import type {
   FellowshipLectionaryDay,
@@ -72,7 +72,7 @@ export function resolveFellowshipReading(
     rawRef = day.ep[index] ?? day.ep[0] ?? day.bsg
   }
 
-  const reference = normalizeBibleReference(rawRef)
+  const reference = resolveGuideReferenceForFetch(rawRef)
   const label = slotLabel(slot)
 
   return {
@@ -91,7 +91,7 @@ export function listSelectableReferences(
   const list = slot === 'bsg' ? [day.bsg] : slot === 'mp' ? day.mp : day.ep
   return list.map((raw, index) => ({
     index,
-    reference: normalizeBibleReference(raw),
+    reference: resolveGuideReferenceForFetch(raw),
     display: raw,
   }))
 }

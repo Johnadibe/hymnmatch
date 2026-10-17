@@ -42,7 +42,7 @@ export function BrandMark({ size = 'header' }: BrandMarkProps) {
     return (
       <YStack
         alignItems="center"
-        gap="$4"
+        gap="$7"
       >
         <Image
           source={acppbLogo}

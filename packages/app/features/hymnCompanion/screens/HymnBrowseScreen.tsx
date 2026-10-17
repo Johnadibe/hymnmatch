@@ -6,7 +6,7 @@ import { ChevronRight } from '@tamagui/lucide-icons'
 import { AppScreen } from '../components/AppScreen'
 import { HymnLibrarySearchField } from '../components/HymnLibrarySearchField'
 import { SurfaceCard } from '../components/SurfaceCard'
-import { filterHymnCatalog } from '../data/hymnCatalog'
+import { searchHymnCatalog } from '../data/hymnSearch'
 import { TYPE } from '../constants'
 import type { HymnCatalogEntry } from '../types'
 
@@ -75,7 +75,7 @@ export function HymnBrowseScreen() {
   const router = useRouter()
   const [query, setQuery] = useState('')
 
-  const filtered = useMemo(() => filterHymnCatalog(query), [query])
+  const filtered = useMemo(() => searchHymnCatalog(query), [query])
 
   const onOpenHymn = useCallback(
     (id: string) => {
@@ -130,8 +130,8 @@ export function HymnBrowseScreen() {
           color="$color10"
           textAlign="center"
         >
-          Try an Abu number (e.g. 8), an English line (e.g. immortal), or Igbo without tone marks (e.g.
-          Chineke).
+          Try an Abu number (e.g. 59 or Abu 59), English (e.g. shepherd), or Igbo words from the
+          song (e.g. Chineke or Kraist). Tone marks optional.
         </Text>
       </YStack>
     ),
@@ -142,7 +142,7 @@ export function HymnBrowseScreen() {
     <AppScreen
       scroll={false}
       title="Hymn library"
-      subtitle="Search by Abu number, Igbo title, or English equivalent."
+      subtitle="Search by Abu number, Igbo lyrics, or English title and themes."
       headerExtra={
         <HymnLibrarySearchField
           value={query}
@@ -164,9 +164,7 @@ export function HymnBrowseScreen() {
             paddingBottom: 24,
             flexGrow: filtered.length === 0 ? 1 : undefined,
           }}
-          ItemSeparatorComponent={() => (
-            <YStack height={12} />
-          )}
+          ItemSeparatorComponent={() => <YStack height={12} />}
         />
       </YStack>
     </AppScreen>

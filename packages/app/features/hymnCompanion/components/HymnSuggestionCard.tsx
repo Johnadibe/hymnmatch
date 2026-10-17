@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native'
 import { Button, PressPresets, Text, XStack, YStack } from '@my/ui'
 import { ChevronRight, Music2 } from '@tamagui/lucide-icons'
 import { TYPE } from '../constants'
+import { plainAppCopy } from '../utils/plainAppCopy'
 import type { HymnCatalogEntry } from '../types'
 import type { HymnRecommendation } from '../types'
 
@@ -115,7 +116,7 @@ export function HymnSuggestionCard({
           {...TYPE.body}
           color="$color11"
         >
-          {recommendation.reason}
+          {plainAppCopy(recommendation.reason)}
         </Text>
 
         {recommendation.matchedThemes.length > 0 ? (

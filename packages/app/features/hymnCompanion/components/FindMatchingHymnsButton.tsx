@@ -55,7 +55,7 @@ export function FindMatchingHymnsButton({
             fontWeight="700"
             letterSpacing={-0.2}
           >
-            {loading ? 'Opening hymn suggestions…' : 'Find matching hymns'}
+            {loading ? 'Opening hymn suggestions...' : 'Find matching hymns'}
           </Text>
           <ChevronRight
             size={22}

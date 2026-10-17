@@ -3,12 +3,13 @@ import { YStack } from '@my/ui'
 
 type SurfaceCardProps = {
   children: ReactNode
-  accent?: 'blue' | 'green' | 'neutral'
+  accent?: 'blue' | 'green' | 'amber' | 'neutral'
 }
 
 const accentBorder = {
   blue: '$blue6',
   green: '$green6',
+  amber: '$orange7',
   neutral: '$borderColor',
 } as const
 

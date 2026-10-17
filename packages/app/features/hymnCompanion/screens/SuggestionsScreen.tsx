@@ -6,6 +6,7 @@ import { AppScreen } from '../components/AppScreen'
 import { HeaderIconButton } from '../components/HeaderIconButton'
 import { ErrorPanel } from '../components/ErrorPanel'
 import { HymnSuggestionCard } from '../components/HymnSuggestionCard'
+import { HymnMatchLoading } from '../components/HymnMatchLoading'
 import { LoadingBlock } from '../components/LoadingBlock'
 import { SurfaceCard } from '../components/SurfaceCard'
 import { HYMN_SUGGESTION_COUNT, TYPE } from '../constants'
@@ -45,7 +46,12 @@ export function SuggestionsScreen() {
         sermonThemeHint: themeHint || undefined,
       })
       setResult(match)
-      await setMatchSession({ reading, themeHint, sermonThemes: match.sermonThemes })
+      await setMatchSession({
+        reading,
+        themeHint,
+        sermonThemes: match.sermonThemes,
+        recommendations: match.recommendations,
+      })
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Matching failed')
       setResult(null)
@@ -88,7 +94,7 @@ export function SuggestionsScreen() {
     return (
       <AppScreen
         title="Suggested hymns"
-        subtitle="Loading your passage…"
+        subtitle="Loading your passage..."
         onBack={() => router.back()}
       >
         <LoadingBlock minimal />
@@ -164,12 +170,7 @@ export function SuggestionsScreen() {
         </XStack>
       </SurfaceCard>
 
-      {loading ? (
-        <LoadingBlock
-          label="Finding hymns for your message"
-          sublabel="This usually takes a few seconds."
-        />
-      ) : null}
+      {loading ? <HymnMatchLoading /> : null}
 
       {matchErr ? (
         <ErrorPanel

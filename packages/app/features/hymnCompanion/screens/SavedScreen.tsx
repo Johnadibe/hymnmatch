@@ -28,10 +28,10 @@ export function SavedScreen() {
   return (
     <AppScreen
       title="Saved preparations"
-      subtitle="Stored on this device and available offline after you save."
+      subtitle="Stored on this device. Passage text and hymns stay available offline after you save."
     >
       {loading ? (
-        <LoadingBlock label="Loading…" />
+        <LoadingBlock label="Loading..." />
       ) : items.length === 0 ? (
         <SurfaceCard accent="blue">
           <BookMarked
@@ -48,13 +48,14 @@ export function SavedScreen() {
             color="$color11"
             {...TYPE.body}
           >
-            From Today, find matching hymns and tap Save on a hymn you choose. It will appear here.
+            From Word, load your Daily Bread passage, find matching Abu, and tap Save on the hymn
+            you choose. It will appear here with the Scripture text.
           </Text>
           <Button
             {...PressPresets.primary}
             onPress={() => router.push('/(tabs)/today')}
           >
-            Go to Today
+            Go to Word
           </Button>
         </SurfaceCard>
       ) : (
@@ -71,27 +72,52 @@ export function SavedScreen() {
               >
                 {item.date} · {item.reference}
               </Text>
+              {item.dailyBreadSlot ? (
+                <Text
+                  {...TYPE.caption}
+                  color="$color10"
+                >
+                  {item.dailyBreadSlot}
+                </Text>
+              ) : null}
               <Text
                 color="$color11"
                 {...TYPE.body}
               >
                 {item.sermonTheme}
               </Text>
-              {hymn ? (
+              {item.passageText ? (
                 <Text
-                  fontWeight="600"
-                  {...TYPE.body}
+                  {...TYPE.bodySmall}
+                  color="$color10"
+                  numberOfLines={4}
+                  marginTop="$2"
                 >
-                  #{hymn.number} {hymn.title}
+                  {item.passageText}
                 </Text>
               ) : null}
-              {item.notes ? (
-                <Text {...TYPE.bodySmall}>{item.notes}</Text>
+              {hymn ? (
+                <Button
+                  unstyled
+                  {...PressPresets.listItem}
+                  marginTop="$2"
+                  onPress={() => router.push(`/hymn/${hymn.id}`)}
+                >
+                  <Text
+                    fontWeight="600"
+                    {...TYPE.body}
+                    color="$blue11"
+                  >
+                    #{hymn.number} {hymn.title}
+                  </Text>
+                </Button>
               ) : null}
+              {item.notes ? <Text {...TYPE.bodySmall}>{item.notes}</Text> : null}
               <Button
                 {...PressPresets.secondary}
                 icon={Trash2}
                 alignSelf="flex-start"
+                marginTop="$2"
                 onPress={() => void deletePreparation(item.id).then(refresh)}
               >
                 Remove

@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import type { DailyReading } from '../types'
+import type { DailyReading, HymnRecommendation } from '../types'
 
 const SESSION_KEY = 'hymn_companion_active_reading_v1'
 
@@ -21,6 +21,7 @@ export type MatchSession = {
   reading: DailyReading
   themeHint: string
   sermonThemes?: string[]
+  recommendations?: HymnRecommendation[]
 }
 
 const MATCH_KEY = 'hymn_companion_match_session_v1'

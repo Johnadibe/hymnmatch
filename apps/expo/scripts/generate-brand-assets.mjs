@@ -2,9 +2,9 @@
  * Regenerate launcher icons and bootstrap splash PNG (native + in-app must match).
  * Run: cd apps/expo && yarn generate-brand-assets
  */
-import fs from 'fs'
-import path from 'path'
-import { fileURLToPath } from 'url'
+import fs from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import Jimp from 'jimp-compact'
 import sharp from 'sharp'
 import {
@@ -74,12 +74,15 @@ async function buildLauncherIcon() {
   const adaptivePath = path.join(assetsDir, 'adaptive-icon.png')
   await icon.writeAsync(iconPath)
   await icon.writeAsync(adaptivePath)
-  console.log('Wrote icon.png, adaptive-icon.png')
 }
 
 async function circularLogoBuffer() {
   const resized = await sharp(sourcePath)
-    .resize(LOGO_DIAMETER, LOGO_DIAMETER, { fit: 'contain', background: { r: 255, g: 255, b: 255, alpha: 1 } })
+    .modulate({ brightness: 1.12, saturation: 1.15 })
+    .resize(LOGO_DIAMETER, LOGO_DIAMETER, {
+      fit: 'contain',
+      background: { r: 255, g: 255, b: 255, alpha: 1 },
+    })
     .png()
     .toBuffer()
 
@@ -87,7 +90,10 @@ async function circularLogoBuffer() {
     `<svg width="${LOGO_DIAMETER}" height="${LOGO_DIAMETER}"><circle cx="${LOGO_DIAMETER / 2}" cy="${LOGO_DIAMETER / 2}" r="${LOGO_DIAMETER / 2}" fill="white"/></svg>`
   )
 
-  return sharp(resized).composite([{ input: mask, blend: 'dest-in' }]).png().toBuffer()
+  return sharp(resized)
+    .composite([{ input: mask, blend: 'dest-in' }])
+    .png()
+    .toBuffer()
 }
 
 function markHeight() {
@@ -101,9 +107,10 @@ function markSvg(height) {
   const haloY = MARK_PAD_Y - Math.round((halo - LOGO_DIAMETER) / 2)
   return Buffer.from(
     `<svg width="${MARK_W}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="${MARK_W / 2}" cy="${haloY + halo / 2}" r="${halo / 2}" fill="rgba(255,255,255,0.16)"/>
+  <circle cx="${MARK_W / 2}" cy="${haloY + halo / 2}" r="${halo / 2 + 18}" fill="rgba(255,255,255,0.22)"/>
+  <circle cx="${MARK_W / 2}" cy="${haloY + halo / 2}" r="${halo / 2}" fill="rgba(255,255,255,0.28)"/>
   <text x="${MARK_W / 2}" y="${titleY}" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="${TITLE_FONT_PX}" font-weight="800" letter-spacing="-1.5">
-    <tspan fill="#FFFFFF">Hymn</tspan><tspan fill="#FFE566">Match</tspan>
+    <tspan fill="#FFFFFF" stroke="rgba(0,40,120,0.12)" stroke-width="2">Hymn</tspan><tspan fill="#FFF176">Match</tspan>
   </text>
 </svg>`
   )
@@ -124,8 +131,6 @@ async function buildSplashMark() {
     ])
     .png()
     .toFile(markPath)
-
-  console.log('Wrote splash-mark.png', MARK_W, 'x', height)
   return { markPath, height }
 }
 
@@ -138,7 +143,7 @@ async function buildSplashFull(markPath) {
 
   const mark = await sharp(markPath).png().toBuffer()
   const meta = await sharp(mark).metadata()
-  const targetW = 780
+  const targetW = 820
   const targetH = Math.round((targetW * meta.height) / meta.width)
   const resized = await sharp(mark).resize(targetW, targetH).png().toBuffer()
   const left = Math.round((SPLASH_W - targetW) / 2)
@@ -151,7 +156,6 @@ async function buildSplashFull(markPath) {
     .png()
     .toFile(outExpo)
   fs.copyFileSync(outExpo, outApp)
-  console.log('Wrote splash-full.png + splash-bootstrap.png')
 }
 
 async function main() {
